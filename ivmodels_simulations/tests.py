@@ -1,4 +1,4 @@
-import np
+import numpy as np
 import scipy
 from ivmodels import KClass
 from ivmodels.tests.utils import _check_test_inputs

@@ -2,6 +2,7 @@ import json
 
 import matplotlib.pyplot as plt
 import numpy as np
+from guggenberger12_power_collect import n_betas
 
 from ivmodels_simulations.constants import DATA_PATH, FIGURES_PATH
 
@@ -9,9 +10,9 @@ input = DATA_PATH / "guggenberger12_power"
 figures = FIGURES_PATH / "guggenberger12_power"
 figures.mkdir(parents=True, exist_ok=True)
 
-p_values = json.load(input / "guggenberger_12_power.json")
+with open(input / "guggenberger_12_power.json", "r") as f:
+    p_values = json.load(f)
 
-n_betas = 500
 betas = np.linspace(0.5, 1.5, n_betas)
 
 alpha = 0.05
@@ -33,5 +34,5 @@ ax.hlines(
 ax.vlines(x=1, ymin=0, ymax=1, linestyle="--", color="black", label="$\\beta_0=1$")
 ax.legend()
 
-fig.savefig(figures / "guggenberger12_power_{alpha}.pdf")
-fig.savefig(figures / "guggenberger12_power_{alpha}.eps")
+fig.savefig(figures / f"guggenberger12_power_{alpha}.pdf")
+fig.savefig(figures / f"guggenberger12_power_{alpha}.eps")

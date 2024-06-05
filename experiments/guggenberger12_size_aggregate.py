@@ -11,19 +11,21 @@ tables = TABLES_PATH / "guggenberger12_size"
 tables.mkdir(parents=True, exist_ok=True)
 
 ks = [5, 10, 15, 20, 25, 30]
-tests = ["AR", "AR (GKM)", "CLR", "LM", "LM (LIML)", "LR", "Wald (LIML)", "Wald (TSLS)"]
+tests = ["AR", "CLR", "LM", "LM (LIML)", "LR", "Wald (LIML)", "Wald (TSLS)"]
 
 p_values = pd.read_csv(
-    DATA_PATH / "guggenberger12_size" / "guggenberger12_p_values.csv"
+    DATA_PATH / "guggenberger12_size" / "guggenberger12_p_values.csv",
+    header=[0, 1],
+    index_col=0,
 )
 
-type_1_error_table = pd.DataFrame(index=list(tests.keys()), columns=ks)
+type_1_error_table = pd.DataFrame(index=tests, columns=ks)
 for (test_name, k), value in p_values.items():
-    type_1_error_table.loc[test_name, k] = np.mean(value < 0.05)
+    type_1_error_table.loc[test_name, int(k)] = np.mean(value < 0.05)
 
 with open(tables / "guggenberger12_type_1_error.txt", "w+") as f:
-    formatters = ["{:0.1f}".format for _ in ks]
-    f.write(100 * type_1_error_table.to_latex(formatters=formatters))
+    formatters = ["{:0.1f}\\%".format for _ in ks]
+    f.write((100 * type_1_error_table).to_latex(formatters=formatters))
 
 fig_width = 1.5 * 6.3  # inches
 fig_height = 1.5 * 4.725  # inches for a 4:3 aspect ratio
@@ -34,8 +36,8 @@ fig, axes = plt.subplots(
     nrows=len(tests), ncols=3, figsize=(fig_width, fig_height * 5 / 3)
 )
 for k_idx, k in enumerate([10, 20, 30]):
-    for test_idx, test_name in enumerate(tests.keys()):
-        values = p_values[(test_name, k)]
+    for test_idx, test_name in enumerate(tests):
+        values = p_values[(test_name, str(k))]
         if len(values) > 100:
             values = np.sort(values)[(n_seeds // 200) :: (n_seeds // 100)]
 
@@ -53,7 +55,7 @@ for k_idx, k in enumerate([10, 20, 30]):
 
 title_font_size = axes[0, 0].title.get_fontsize()
 
-for test_idx, test_name in enumerate(tests.keys()):
+for test_idx, test_name in enumerate(tests):
     axes[test_idx, 0].annotate(
         test_name,
         xy=(0, 0.5),

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# https://personal.sron.nl/~pault/#sec:qualitative
 COLORS = {
     "blue": "#4477AA",
     "cyan": "#66CCEE",

@@ -1,3 +1,4 @@
+import multiprocessing
 from functools import partial
 
 import numpy as np
@@ -11,11 +12,7 @@ from ivmodels.tests import (
     wald_test,
 )
 
-from ivmodels_simulations.constants import DATA_PATH
 from ivmodels_simulations.tests import lagrange_multiplier_test_liml
-
-output = DATA_PATH / "guggenberger12_size"
-output.mkdir(parents=True, exist_ok=True)
 
 wald_test_liml = partial(wald_test, estimator="liml")
 
@@ -34,19 +31,36 @@ mx = 1
 mw = 1
 m = mx + mw
 n = 1000
-n_seeds = 10000
-ks = [5, 10, 15, 20, 25, 30]
 
-p_values = {(test_name, k): np.zeros(n_seeds) for test_name in tests for k in ks}
 
-for k_idx, k in enumerate(ks):
-    for seed in range(n_seeds):
-        rng = np.random.RandomState(seed)
+def _run(seed, k):
+    Z, X, y, _, W, beta = simulate_guggenberger12(n, k=k, seed=seed, return_beta=True)
+    return {
+        test_name: test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)[1]
+        for test_name, test in tests.items()
+    }
 
-        Z, X, y, _, W, beta = simulate_guggenberger12(n, k, seed=seed, return_beta=True)
 
-        for test_name, test in tests.items():
-            _, p_value = test(Z, X, y, W=W, beta=np.ones((mx, 1)), fit_intercept=False)
-            p_values[(test_name, k)][seed] = p_value
+if __name__ == "__main__":
+    import itertools
 
-pd.DataFrame(p_values).to_csv(output / "guggenberger12_p_values.csv", index=False)
+    from ivmodels_simulations.constants import DATA_PATH
+
+    output = DATA_PATH / "guggenberger12_size"
+    output.mkdir(parents=True, exist_ok=True)
+
+    n_seeds = 10000
+    ks = [5, 10, 15, 20, 25, 30]
+
+    pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
+    result = pool.starmap(_run, itertools.product(range(n_seeds), ks))
+
+    p_values = {(test_name, k): np.zeros(n_seeds) for test_name in tests for k in ks}
+    for idx, (seed, k) in enumerate(itertools.product(range(n_seeds), ks)):
+        for test_name in tests:
+            p_values[(test_name, k)][seed] = result[idx][test_name]
+
+    columns = pd.MultiIndex.from_tuples(p_values.keys())
+    pd.DataFrame(p_values, columns=columns).to_csv(
+        output / "guggenberger12_p_values.csv", index=False
+    )
