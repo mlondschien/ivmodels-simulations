@@ -1,3 +1,4 @@
+import os
 from functools import partial
 
 import numpy as np
@@ -12,6 +13,9 @@ from ivmodels.tests import (
 
 from ivmodels_simulations.tests import lagrange_multiplier_test_liml
 
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 tests = {
     "AR": anderson_rubin_test,
     "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
@@ -25,7 +29,7 @@ tests = {
 
 mx = 1
 mw = 1
-k = 20
+k = 10
 n = 1000
 
 beta = np.array([[1]])

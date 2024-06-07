@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 from functools import partial
 
 import numpy as np
@@ -13,6 +14,10 @@ from ivmodels.tests import (
 )
 
 from ivmodels_simulations.tests import lagrange_multiplier_test_liml
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 
 wald_test_liml = partial(wald_test, estimator="liml")
 
