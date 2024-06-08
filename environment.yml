@@ -11,3 +11,4 @@ dependencies:
   - glum
   - pandas  # optional
   - click
+  - h5py

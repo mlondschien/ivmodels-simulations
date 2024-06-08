@@ -1,5 +1,4 @@
 import itertools
-import json
 import multiprocessing
 import os
 from functools import partial
@@ -11,6 +10,7 @@ os.environ["MKL_NUM_THREADS"] = "1"
 # isort: on
 
 import click
+import h5py
 import numpy as np
 import scipy
 from ivmodels.simulate import simulate_guggenberger12
@@ -23,7 +23,6 @@ from ivmodels.tests import (
 )
 
 from ivmodels_simulations.constants import DATA_PATH
-from ivmodels_simulations.encode import NumpyEncoder
 from ivmodels_simulations.tests import lagrange_multiplier_test_liml
 
 output = DATA_PATH / "kleibergen19_size"
@@ -122,11 +121,14 @@ def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
                 test_name
             ]
 
-    with open(
-        f"kleibergen19_size_n={n}_k={k}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}_cov_type={cov_type}.json",
-        "w+",
-    ) as f:
-        json.dump(p_values, f, cls=NumpyEncoder)
+    f = h5py.File(
+        output
+        / f"kleibergen19_size_n={n}_k={k}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}_cov_type={cov_type}.h5",
+        "w",
+    )
+    for test_name in tests:
+        grp = f.create_group(test_name)
+        grp.create_dataset("p_values", data=p_values[test_name])
 
 
 # With n=1000, k=100, n_seeds=1, n_taus=n_lambdas=20, this takes 8min on my macbook.
