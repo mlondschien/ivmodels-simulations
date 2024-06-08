@@ -7,6 +7,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 # isort: on
 
+import click
 import numpy as np
 from ivmodels.simulate import simulate_guggenberger12
 from ivmodels.tests import (
@@ -32,8 +33,6 @@ tests = {
 
 mx = 1
 mw = 1
-k = 10
-n = 1000
 
 beta = np.array([[1]])
 gamma = np.array([[1]])
@@ -47,7 +46,7 @@ betas = np.linspace(0.5, 1.5, n_betas)
 p_values = {test_name: np.zeros((n_seeds, n_betas)) for test_name in tests}
 
 
-def _run(seed):
+def _run(seed, n, k):
     p_values = {test_name: np.zeros(n_betas) for test_name in tests}
     Z, X, y, _, W = simulate_guggenberger12(n, k=k, seed=seed, h12=10)
 
@@ -59,7 +58,11 @@ def _run(seed):
     return p_values
 
 
-if __name__ == "__main__":
+@click.command()
+@click.option("--n", default=1000)
+@click.option("--k", default=10)
+@click.option("--n_cores", default=-1)
+def main(n, k, n_cores):
     import json
     import multiprocessing
 
@@ -69,8 +72,11 @@ if __name__ == "__main__":
     output = DATA_PATH / "guggenberger12_power"
     output.mkdir(parents=True, exist_ok=True)
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
-    result = pool.map(_run, range(n_seeds))
+    if n_cores == -1:
+        n_cores = multiprocessing.cpu_count() - 1
+
+    pool = multiprocessing.Pool(n_cores)
+    result = pool.map(partial(_run, n=n, k=k), range(n_seeds))
 
     p_values = {test_name: np.zeros((n_seeds, n_betas)) for test_name in tests}
 
@@ -78,5 +84,9 @@ if __name__ == "__main__":
         for test_name in tests:
             p_values[test_name][seed, :] = result[seed][test_name]
 
-    with open(output / "guggenberger_12_power.json", "w+") as f:
+    with open(output / f"guggenberger_12_power_n={n}_k={k}.json", "w+") as f:
         json.dump(p_values, f, cls=NumpyEncoder)
+
+
+if __name__ == "__main__":
+    main()

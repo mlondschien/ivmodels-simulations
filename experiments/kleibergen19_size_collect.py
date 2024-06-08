@@ -10,6 +10,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 # isort: on
 
+import click
 import numpy as np
 import scipy
 from ivmodels.simulate import simulate_guggenberger12
@@ -42,30 +43,10 @@ tests = {
     # "CLR (us)": partial(conditional_likelihood_ratio_test, critical_values="us"),
 }
 
-# With n=1000, k=100, n_seeds=1, n_taus=n_lambdas=20, this takes 8min on my macbook.
-n = 1000
-n_seeds = 1
 
-n_taus = 20
-n_lambda_1s = 20
-n_lambda_2s = 20
-
-mw = 1
-mx = 1
-m = mx + mw
-k = 100
-
-beta = np.array([[1]])
-gamma = np.zeros((mw, 1))
-beta_gamma = np.concatenate([beta, gamma], axis=0)
-cov = np.diag(np.ones(m + 1))
-# cov = np.array([[1, 0, 0.95], [0, 1, 0.3], [0.95, 0.3, 1]])
-sqrt_cond_cov = scipy.linalg.sqrtm(np.linalg.inv(cov)[1:, 1:])
-
-
-def _run(tau, lambda_1, lambda_2):
+def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
     p_values = {test_name: np.zeros(n_seeds) for test_name in tests}
-
+    sqrt_cond_cov = scipy.linalg.sqrtm(np.linalg.inv(cov)[1:, 1:])
     Lambda = np.array([[np.sqrt(lambda_1), 0], [0, np.sqrt(lambda_2)]])
     R = np.array([[np.cos(tau), -np.sin(tau)], [np.sin(tau), np.cos(tau)]])
     concentration = sqrt_cond_cov.T @ R @ Lambda.T @ Lambda @ R.T @ sqrt_cond_cov
@@ -88,16 +69,41 @@ def _run(tau, lambda_1, lambda_2):
     return p_values
 
 
-if __name__ == "__main__":
+@click.command()
+@click.option("--n", default=1000)
+@click.option("--k", default=100)
+@click.option("--n_vars", default=20)
+@click.option("--n_cores", default=-1)
+@click.option("--lambda_max", default=20)
+@click.option("--n_seeds", default=1000)
+@click.option("--cov_type", default="identity")
+def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
+    n_taus = n_vars
+    n_lambda_1s = n_vars
+    n_lambda_2s = n_vars
 
-    lambda_max = 20
+    mw = 1
+    mx = 1
+    m = mx + mw
+
+    if cov_type == "identity":
+        cov = np.diag(np.ones(m + 1))
+    elif cov_type == "guggenberger12":
+        cov = np.array([[1, 0, 0.95], [0, 1, 0.3], [0.95, 0.3, 1]])
+    else:
+        raise ValueError(f"Invalid cov_type: {cov_type}")
+
     taus = np.linspace(0, 2 * np.pi * (n_taus - 1) / n_taus, n_taus)
     lambda_1s = np.linspace(0, lambda_max, n_lambda_1s)
     lambda_2s = np.linspace(0, lambda_max, n_lambda_2s)
 
-    pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
-    result = [_run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
-    result = pool.starmap(_run, itertools.product(taus, lambda_1s, lambda_2s))
+    if n_cores == -1:
+        n_cores = multiprocessing.cpu_count() - 1
+
+    pool = multiprocessing.Pool(n_cores)
+    run = partial(_run, n=n, k=k, n_seeds=n_seeds, cov=cov)
+    # result = [_run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
+    result = pool.starmap(run, itertools.product(taus, lambda_1s, lambda_2s))
 
     p_values = {
         test_name: np.zeros((n_seeds, n_taus, n_lambda_1s, n_lambda_2s))
@@ -116,5 +122,13 @@ if __name__ == "__main__":
                 test_name
             ]
 
-    with open("kleibergen19_size.json", "w") as f:
+    with open(
+        f"kleibergen19_size_n={n}_k={k}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}_cov_type={cov_type}.json",
+        "w+",
+    ) as f:
         json.dump(p_values, f, cls=NumpyEncoder)
+
+
+# With n=1000, k=100, n_seeds=1, n_taus=n_lambdas=20, this takes 8min on my macbook.
+if __name__ == "__main__":
+    main()
