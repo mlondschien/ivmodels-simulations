@@ -4,6 +4,12 @@ import multiprocessing
 import os
 from functools import partial
 
+# isort: off
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+# isort: on
+
 import numpy as np
 import scipy
 from ivmodels.simulate import simulate_guggenberger12
@@ -18,10 +24,6 @@ from ivmodels.tests import (
 from ivmodels_simulations.constants import DATA_PATH
 from ivmodels_simulations.encode import NumpyEncoder
 from ivmodels_simulations.tests import lagrange_multiplier_test_liml
-
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
 
 output = DATA_PATH / "kleibergen19_size"
 output.mkdir(parents=True, exist_ok=True)
@@ -40,8 +42,9 @@ tests = {
     # "CLR (us)": partial(conditional_likelihood_ratio_test, critical_values="us"),
 }
 
+# With n=1000, k=100, n_seeds=1, n_taus=n_lambdas=20, this takes 8min on my macbook.
 n = 1000
-n_seeds = 1000
+n_seeds = 1
 
 n_taus = 20
 n_lambda_1s = 20
@@ -93,7 +96,7 @@ if __name__ == "__main__":
     lambda_2s = np.linspace(0, lambda_max, n_lambda_2s)
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
-    # result = [_run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
+    result = [_run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
     result = pool.starmap(_run, itertools.product(taus, lambda_1s, lambda_2s))
 
     p_values = {

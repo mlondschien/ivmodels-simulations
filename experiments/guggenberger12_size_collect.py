@@ -2,6 +2,12 @@ import multiprocessing
 import os
 from functools import partial
 
+# isort: off
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+# isort: on
+
 import numpy as np
 import pandas as pd
 from ivmodels.simulate import simulate_guggenberger12
@@ -15,12 +21,7 @@ from ivmodels.tests import (
 
 from ivmodels_simulations.tests import lagrange_multiplier_test_liml
 
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-
 wald_test_liml = partial(wald_test, estimator="liml")
-
 tests = {
     "AR": anderson_rubin_test,
     "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
@@ -54,6 +55,7 @@ if __name__ == "__main__":
     output = DATA_PATH / "guggenberger12_size"
     output.mkdir(parents=True, exist_ok=True)
 
+    # With n_seeds=100, on one core, this takes ~7s on my macbook.
     n_seeds = 10000
     ks = [5, 10, 15, 20, 25, 30]
 
