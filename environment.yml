@@ -12,3 +12,4 @@ dependencies:
   - pandas  # optional
   - click
   - h5py
+  - matplotlib
