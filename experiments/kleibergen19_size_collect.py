@@ -29,33 +29,41 @@ output = DATA_PATH / "kleibergen19_size"
 output.mkdir(parents=True, exist_ok=True)
 
 tests = {
-    "LM (LIML)": lagrange_multiplier_test_liml,
-    "Wald (TSLS)": wald_test,
-    "Wald (LIML)": partial(wald_test, estimator="liml"),
-    "LR": likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
     "AR": anderson_rubin_test,
-    "CLR": conditional_likelihood_ratio_test,
     "AR (Guggenberger)": partial(
         anderson_rubin_test, critical_values="guggenberger2019more"
     ),
-    # "CLR (us)": partial(conditional_likelihood_ratio_test, critical_values="us"),
+    "CLR": conditional_likelihood_ratio_test,
+    "LM": lagrange_multiplier_test,
+    "LM (LIML)": lagrange_multiplier_test_liml,
+    "LR": likelihood_ratio_test,
+    "Wald (LIML)": partial(wald_test, estimator="liml"),
+    "Wald (TSLS)": wald_test,
+    "CLR (us)": partial(conditional_likelihood_ratio_test, critical_values="us"),
 }
+
+data_type = np.uint16
 
 
 def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
-    p_values = {test_name: np.zeros(n_seeds) for test_name in tests}
-    sqrt_cond_cov = scipy.linalg.sqrtm(np.linalg.inv(cov)[1:, 1:])
+    p_values = {test_name: np.zeros(n_seeds, dtype=data_type) for test_name in tests}
+
+    # cov = np.eye(3) but with cov[1, 0] = -beta_0, cov[2, 0] = -gamma_0
+    # s.t. mat.T @ cov @ mat = Cov(y - X beta_0 - W gamma_0, X, W) ???
+    mat = np.array([[1, 0, 0], [-1, 1, 0], [-1, 0, 1]])
+
+    Sigma = mat.T @ cov @ mat
+    sqrt_cond_Sigma = scipy.linalg.sqrtm(np.linalg.inv(Sigma)[1:, 1:])
     Lambda = np.array([[np.sqrt(lambda_1), 0], [0, np.sqrt(lambda_2)]])
     R = np.array([[np.cos(tau), -np.sin(tau)], [np.sin(tau), np.cos(tau)]])
-    concentration = sqrt_cond_cov.T @ R @ Lambda.T @ Lambda @ R.T @ sqrt_cond_cov
+    concentration = sqrt_cond_Sigma.T @ R @ Lambda.T @ Lambda @ R.T @ sqrt_cond_Sigma
 
     for seed in range(n_seeds):
-        h11, h12 = concentration[0, 0], concentration[1, 1]
+        h11, h12 = np.sqrt(concentration[0, 0]), np.sqrt(concentration[1, 1])
         if np.isclose(h11 * h12, 0):
             rho = 0
         else:
-            rho = concentration[0, 1] / np.sqrt(h11 * h12)
+            rho = np.sqrt(concentration[0, 1]) / np.sqrt(h11 * h12)
 
         Z, X, y, _, W, beta = simulate_guggenberger12(
             n, k=k, seed=seed, return_beta=True, h11=h11, h12=h12, rho=rho, cov=cov
@@ -63,6 +71,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
 
         for test_name, test in tests.items():
             _, p_value = test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)
+            p_value = p_value * np.iinfo(data_type).max
             p_values[test_name][seed] = p_value
 
     return p_values
@@ -99,13 +108,15 @@ def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1
 
-    pool = multiprocessing.Pool(n_cores)
+    # pool = multiprocessing.Pool(n_cores)
     run = partial(_run, n=n, k=k, n_seeds=n_seeds, cov=cov)
-    # result = [_run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
-    result = pool.starmap(run, itertools.product(taus, lambda_1s, lambda_2s))
+    result = [run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
+    # result = pool.starmap(run, itertools.product(taus, lambda_1s, lambda_2s))
 
     p_values = {
-        test_name: np.zeros((n_seeds, n_taus, n_lambda_1s, n_lambda_2s))
+        test_name: np.zeros(
+            (n_seeds, n_taus, n_lambda_1s, n_lambda_2s), dtype=data_type
+        )
         for test_name in tests
     }
 
