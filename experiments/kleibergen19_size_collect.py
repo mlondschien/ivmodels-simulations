@@ -63,7 +63,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
         if np.isclose(h11 * h12, 0):
             rho = 0
         else:
-            rho = np.sqrt(concentration[0, 1]) / np.sqrt(h11 * h12)
+            rho = concentration[0, 1] / np.sqrt(h11 * h12)
 
         Z, X, y, _, W, beta = simulate_guggenberger12(
             n, k=k, seed=seed, return_beta=True, h11=h11, h12=h12, rho=rho, cov=cov
@@ -108,10 +108,10 @@ def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1
 
-    # pool = multiprocessing.Pool(n_cores)
+    pool = multiprocessing.Pool(n_cores)
     run = partial(_run, n=n, k=k, n_seeds=n_seeds, cov=cov)
-    result = [run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
-    # result = pool.starmap(run, itertools.product(taus, lambda_1s, lambda_2s))
+    # result = [run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
+    result = pool.starmap(run, itertools.product(taus, lambda_1s, lambda_2s))
 
     p_values = {
         test_name: np.zeros(
