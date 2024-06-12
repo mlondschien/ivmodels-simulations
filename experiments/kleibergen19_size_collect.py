@@ -50,11 +50,15 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
 
     Sigma = cov
     Sigma_cond = Sigma[1:, 1:] - Sigma[1:, 0:1] @ Sigma[0:1, 1] / Sigma[0, 0]
-    sqrt_cond_Sigma = scipy.linalg.sqrtm(Sigma_cond)
+    Sigma_cond_inv = np.linalg.inv(Sigma_cond)
+    # In the proof of kleibergen19efficient, we need to use a lower triangular square
+    # root of Sigma_cond_inv (for us, X comes first).
+    Sigma_cond_inv_sqrt = scipy.linalg.cholesky(Sigma_cond_inv, lower=True)
+    mat = np.linalg.inv(Sigma_cond_inv_sqrt)
 
     Lambda = np.array([[np.sqrt(lambda_1), 0], [0, np.sqrt(lambda_2)]])
     R = np.array([[np.cos(tau), -np.sin(tau)], [np.sin(tau), np.cos(tau)]])
-    concentration = sqrt_cond_Sigma.T @ R @ Lambda.T @ Lambda @ R.T @ sqrt_cond_Sigma
+    concentration = mat.T @ R @ Lambda.T @ Lambda @ R.T @ mat
     for seed in range(n_seeds):
         h11, h12 = np.sqrt(concentration[0, 0]), np.sqrt(concentration[1, 1])
         if np.isclose(h11 * h12, 0):

@@ -3,6 +3,7 @@ import cmap
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
+from kleibergen19_size_collect import data_type
 
 from ivmodels_simulations.constants import DATA_PATH
 
@@ -38,7 +39,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     ]
 
     for test_name in tests:
-        p_values[test_name] = file[test_name]["p_values"][()]
+        p_values[test_name] = file[test_name]["p_values"][()] / np.iinfo(data_type).max
 
     fig_width = 1.5 * 6.3
     fig_height = 1.5 * 4.725 * 5 / 3
