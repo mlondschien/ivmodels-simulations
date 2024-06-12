@@ -48,12 +48,10 @@ data_type = np.uint16
 def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
     p_values = {test_name: np.zeros(n_seeds, dtype=data_type) for test_name in tests}
 
-    # cov = np.eye(3) but with cov[1, 0] = -beta_0, cov[2, 0] = -gamma_0
-    # s.t. mat.T @ cov @ mat = Cov(y - X beta_0 - W gamma_0, X, W) ???
-    mat = np.array([[1, 0, 0], [-1, 1, 0], [-1, 0, 1]])
+    Sigma = cov
+    Sigma_cond = Sigma[1:, 1:] - Sigma[1:, 0] @ np.linalg.inv(Sigma[0, 0]) @ Sigma[0, 1]
+    sqrt_cond_Sigma = scipy.linalg.sqrtm(Sigma_cond)
 
-    Sigma = mat.T @ cov @ mat
-    sqrt_cond_Sigma = scipy.linalg.sqrtm(np.linalg.inv(Sigma)[1:, 1:])
     Lambda = np.array([[np.sqrt(lambda_1), 0], [0, np.sqrt(lambda_2)]])
     R = np.array([[np.cos(tau), -np.sin(tau)], [np.sin(tau), np.cos(tau)]])
     concentration = sqrt_cond_Sigma.T @ R @ Lambda.T @ Lambda @ R.T @ sqrt_cond_Sigma
