@@ -39,8 +39,9 @@ mw = 1
 m = mx + mw
 
 
-def _run(seed, n, k):
+def _run(n, seed, k):
     Z, X, y, _, W, beta = simulate_guggenberger12(n=n, k=k, seed=seed, return_beta=True)
+
     return {
         test_name: test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)[1]
         for test_name, test in tests.items()
@@ -65,8 +66,9 @@ def main(n, n_cores):
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1
 
-    pool = multiprocessing.Pool(n_cores)
-    result = pool.starmap(partial(_run, n=n), itertools.product(range(n_seeds), ks))
+    run = partial(_run, n)
+    pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
+    result = pool.starmap(run, itertools.product(range(n_seeds), ks))
 
     p_values = {(test_name, k): np.zeros(n_seeds) for test_name in tests for k in ks}
     for idx, (seed, k) in enumerate(itertools.product(range(n_seeds), ks)):
