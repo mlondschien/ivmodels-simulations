@@ -49,7 +49,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
     p_values = {test_name: np.zeros(n_seeds, dtype=data_type) for test_name in tests}
 
     Sigma = cov
-    Sigma_cond = Sigma[1:, 1:] - Sigma[1:, 0:1] @ Sigma[0:1, 1] / Sigma[0, 0]
+    Sigma_cond = Sigma[1:, 1:] - Sigma[1:, 0:1] @ Sigma[0:1, 1:] / Sigma[0, 0]
     Sigma_cond_inv = np.linalg.inv(Sigma_cond)
     # In the proof of kleibergen19efficient, we need to use a lower triangular square
     # root of Sigma_cond_inv (for us, X comes first).
