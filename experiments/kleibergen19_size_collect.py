@@ -64,8 +64,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
         if np.isclose(h11 * h12, 0):
             rho = 0
         else:
-            rho = concentration[0, 1] / np.sqrt(h11 * h12)
-
+            rho = concentration[0, 1] / h11 / h12
         Z, X, y, _, W, beta = simulate_guggenberger12(
             n, k=k, seed=seed, return_beta=True, h11=h11, h12=h12, rho=rho, cov=cov
         )
