@@ -86,7 +86,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
 @click.option("--n_seeds", default=1000)
 @click.option("--cov_type", default="identity")
 def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
-    n_taus = n_vars
+    n_taus = n_vars / 2
     n_lambda_1s = n_vars
     n_lambda_2s = n_vars
 
@@ -101,7 +101,7 @@ def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
     else:
         raise ValueError(f"Invalid cov_type: {cov_type}")
 
-    taus = np.linspace(0, 2 * np.pi * (n_taus - 1) / n_taus, n_taus)
+    taus = np.linspace(0, np.pi * (n_taus - 1) / n_taus, n_taus)
     lambda_1s = np.linspace(0, lambda_max, n_lambda_1s)
     lambda_2s = np.linspace(0, lambda_max, n_lambda_2s)
 
