@@ -30,16 +30,16 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     file = h5py.File(input / name, "r")
     p_values = {}
 
-    tests = [
-        "AR",
-        "AR (Guggenberger)",
-        "CLR",
-        "LM",
-        "LM (LIML)",
-        "LR",
-        "Wald (LIML)",
-        "Wald (TSLS)",
-    ]
+    tests = {
+        "AR": "AR",
+        "AR (Guggenberger)": "AR (GKM)",
+        "CLR": "CLR",
+        "LM": "LM (us)",
+        "LM (LIML)": "LM (LIML)",
+        "LR": "LR",
+        "Wald (LIML)": "Wald (LIML)",
+        "Wald (TSLS)": "Wald (TSLS)",
+    }
 
     for test_name in tests:
         p_values[test_name] = file[test_name]["p_values"][()] / np.iinfo(data_type).max
@@ -60,11 +60,20 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     fig.tight_layout(h_pad=-6, rect=[0, 0, 0.95, 1])
 
     my_cmap = cmap.Colormap(
-        [(0.0, "blue"), (0.05, "green"), (0.07, "yellow"), (0.1, "red"), (1.0, "red")]
+        [
+            (0.0, "blue"),
+            (0.02, "blue"),
+            (0.05, "green"),
+            (0.07, "yellow"),
+            (0.1, "red"),
+            (1.0, "red"),
+        ]
     ).to_mpl()
 
-    for idx, (ax, test_name) in enumerate(zip(axes.flat, tests)):
-        ax.set_title(test_name, loc="left")
+    for idx, (ax, test_name, title) in enumerate(
+        zip(axes.flat, tests.keys(), tests.values())
+    ):
+        ax.set_title(title, loc="left")
 
         data = (p_values[test_name] < 0.05).mean(axis=0).max(axis=0)
 
@@ -79,7 +88,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
             antialiased=True,
             vmin=0,
             vmax=1,
-            alpha=0.85,
+            alpha=0.8,
             edgecolor="black",
         )
         ax.set_proj_type("ortho")
@@ -119,7 +128,9 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
 
     plt.savefig(
         output
-        / f"kleibergen19_size_n={n}_k={k}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}_cov_type={cov_type}.pdf"
+        / f"figure_kleibergen19_{cov_type}_k{k}.pdf",  # eps does not support transparency
+        bbox_inches="tight",
+        pad_inches=0.25,  # need some pad for z-axis label left
     )
 
 

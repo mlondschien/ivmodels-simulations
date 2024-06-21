@@ -61,7 +61,7 @@ def _run(seed, n, k):
 @click.command()
 @click.option("--n", default=1000)
 @click.option("--k", default=10)
-@click.option("--n_cores", default=-1)
+@click.option("--n_cores", default=1)
 def main(n, k, n_cores):
     import json
     import multiprocessing
@@ -75,8 +75,11 @@ def main(n, k, n_cores):
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1
 
-    pool = multiprocessing.Pool(n_cores)
-    result = pool.map(partial(_run, n=n, k=k), range(n_seeds))
+    if n_cores > 1:
+        pool = multiprocessing.Pool(n_cores)
+        result = pool.map(partial(_run, n=n, k=k), range(n_seeds))
+    else:
+        result = [_run(seed, n, k) for seed in range(n_seeds)]
 
     p_values = {test_name: np.zeros((n_seeds, n_betas)) for test_name in tests}
 

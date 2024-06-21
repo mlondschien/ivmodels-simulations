@@ -61,14 +61,17 @@ def main(n, n_cores):
 
     # With n_seeds=100, on one core, this takes ~7s on my macbook.
     n_seeds = 10000
-    ks = [5, 10, 15, 20, 25, 30]
+    ks = [k for k in [5, 10, 15, 20, 25, 30] if k < n]
 
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1
 
-    run = partial(_run, n)
-    pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
-    result = pool.starmap(run, itertools.product(range(n_seeds), ks))
+    if n_cores == 1:
+        result = [_run(n, seed, k) for seed, k in itertools.product(range(n_seeds), ks)]
+    else:
+        run = partial(_run, n)
+        pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
+        result = pool.starmap(run, itertools.product(range(n_seeds), ks))
 
     p_values = {(test_name, k): np.zeros(n_seeds) for test_name in tests for k in ks}
     for idx, (seed, k) in enumerate(itertools.product(range(n_seeds), ks)):
@@ -82,4 +85,6 @@ def main(n, n_cores):
 
 
 if __name__ == "__main__":
+    __spec__ = None
+
     main()
