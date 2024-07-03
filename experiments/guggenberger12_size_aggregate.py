@@ -16,10 +16,19 @@ tables.mkdir(parents=True, exist_ok=True)
 @click.option("--n", default=1000)
 def main(n):
 
-    alphas = [0.05, 0.01]
+    alphas = [0.01, 0.05]
 
-    ks = [5, 10, 15, 20, 25, 30]
-    tests = ["AR", "CLR", "LM", "LM (LIML)", "LR", "Wald (LIML)", "Wald (TSLS)"]
+    ks = [5, 10, 15, 20, 30]
+    tests = [
+        "AR",
+        "AR (GKM)",
+        "CLR",
+        "LM",
+        "LM (LIML)",
+        "LR",
+        "Wald (LIML)",
+        "Wald (TSLS)",
+    ]
 
     p_values = pd.read_csv(
         DATA_PATH / "guggenberger12_size" / f"guggenberger12_p_values_n={n}.csv",
@@ -33,29 +42,35 @@ def main(n):
         else:
             return "{:0.1f}\\%".format(x)
 
+    type_1_error_table = pd.DataFrame(
+        index=tests, columns=[(alpha, k) for alpha in alphas for k in ks]
+    )
     for alpha in alphas:
-        type_1_error_table = pd.DataFrame(index=tests, columns=ks)
         for (test_name, k), value in p_values.items():
-            type_1_error_table.loc[test_name, int(k)] = np.mean(value < alpha)
+            if int(k) not in ks:
+                continue
+            type_1_error_table.loc[test_name][(alpha, int(k))] = np.mean(value < alpha)
 
-        with open(
-            tables / f"guggenberger12_type_1_error_n={n}_alpha={alpha}.txt", "w+"
-        ) as f:
+    with open(tables / f"guggenberger12_type_1_error_n={n}.txt", "w+") as f:
+        formatters = [formatter for _ in ks for _ in alphas]
+        f.write((100 * type_1_error_table).to_latex(formatters=formatters))
 
-            formatters = [formatter for _ in ks]
-            f.write((100 * type_1_error_table).to_latex(formatters=formatters))
-
-    fig_width = 1.5 * 6.3  # inches
-    fig_height = 1.5 * 4.725  # inches for a 4:3 aspect ratio
+    fig_width = 1.5 * 6.3
+    fig_height = 1.5 * 4.725
 
     n_seeds = len(p_values)
 
     fig, axes = plt.subplots(
         nrows=len(tests), ncols=3, figsize=(fig_width, fig_height * 5 / 3)
     )
+    fig.suptitle(
+        "QQ-plots of $p$-values under the null hypothesis gainst the uniform distribution",
+        y=0.94,
+    )
     for k_idx, k in enumerate([10, 20, 30]):
         for test_idx, test_name in enumerate(tests):
-            values = p_values[(test_name, str(k))]
+            key = "AR (GKM)" if test_name == "AR (Guggenberger)" else test_name
+            values = p_values[(key, str(k))]
             if len(values) > 100:
                 values = np.sort(values)[(n_seeds // 200) :: (n_seeds // 100)]
 
@@ -72,7 +87,7 @@ def main(n):
             else:
                 axes[test_idx, k_idx].set_title("")
 
-            axes[test_idx, k_idx].set_ylabel("Empirical quantiles")
+            axes[test_idx, k_idx].set_ylabel("Emp. quantiles")
 
     title_font_size = axes[0, 0].title.get_fontsize()
 

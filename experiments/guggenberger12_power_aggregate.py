@@ -48,14 +48,14 @@ LINESTYLES_MAPPING = {
 }
 
 TESTS = [
-    "Wald (LIML)",
-    "Wald (TSLS)",
-    "LR",
     "AR",
     "AR (GKM)",
+    "CLR",
     "LM",
     "LM (LIML)",
-    "CLR",
+    "LR",
+    "Wald (LIML)",
+    "Wald (TSLS)",
 ]
 
 
@@ -67,19 +67,19 @@ def main(n, k):
         p_values = json.load(f)
 
     alphas = [0.05, 0.01]
-    fig, axes = plt.subplots(
-        nrows=len(alphas), ncols=1, figsize=(10, 1 + 3 * len(alphas))
-    )
+    fig, axes = plt.subplots(nrows=len(alphas), ncols=1, figsize=(10, 5))
+    fig.tight_layout(rect=[0.1, 0.01, 0.8, 0.98])
+    # plt.tight_layout()# h_pad=-3)
     if len(alphas) == 1:
         axes = [axes]
 
     for alpha, ax in zip(alphas, axes):
         for test_name in TESTS:
-            print(np.array(p_values[test_name]).shape)
+            label = "LM (us)" if test_name == "LM" else test_name
             ax.plot(
                 betas,
                 (np.array(p_values[test_name]) < alpha).mean(axis=0),
-                label=test_name,
+                label=label if alpha == alphas[0] else None,
                 color=COLOR_MAPPING[test_name],
                 linestyle=LINESTYLES_MAPPING[test_name],
                 lw=2,
@@ -91,7 +91,7 @@ def main(n, k):
             xmax=np.max(betas),
             linestyle="--",
             color="red",
-            label="level $\\alpha$",
+            label="level $\\alpha$" if alpha == alphas[0] else None,
         )
         if alpha == alphas[0]:
             ax.set_title(
@@ -100,14 +100,24 @@ def main(n, k):
         ax.set_ylabel("rejection frequency")
 
         ax.vlines(
-            x=1, ymin=0, ymax=1, linestyle="--", color="black", label="$\\beta_0=1$"
+            x=1,
+            ymin=0,
+            ymax=1,
+            linestyle="--",
+            color="black",
+            label="$\\beta_0=1$" if alpha == alphas[0] else None,
         )
 
     ax.set_xlabel("$\\beta$")
-    ax.legend(loc="lower left")
-    plt.tight_layout()
-    fig.savefig(figures / f"guggenberger12_power_n={n}_k={k}_alphas={alphas}.pdf")
-    fig.savefig(figures / f"guggenberger12_power_n={n}_k={k}_alphas={alphas}.eps")
+    fig.legend(bbox_to_anchor=(0.78, 0.5), loc="center left")
+    fig.savefig(
+        figures / f"guggenberger12_power_n={n}_k={k}_alphas={alphas}.pdf",
+        bbox_inches="tight",
+    )
+    fig.savefig(
+        figures / f"guggenberger12_power_n={n}_k={k}_alphas={alphas}.eps",
+        bbox_inches="tight",
+    )
 
 
 if __name__ == "__main__":

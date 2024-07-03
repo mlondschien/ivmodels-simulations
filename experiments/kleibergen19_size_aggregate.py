@@ -16,10 +16,10 @@ output.mkdir(parents=True, exist_ok=True)
 @click.command()
 @click.option("--n", default=1000)
 @click.option("--k", default=100)
-@click.option("--n_vars", default=20)
-@click.option("--lambda_max", default=20)
+@click.option("--n_vars", default=50)
+@click.option("--lambda_max", default=100)
 @click.option("--cov_type", default="identity")
-@click.option("--n_seeds", default=1000)
+@click.option("--n_seeds", default=2500)
 def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     lambda_1s = np.linspace(0, lambda_max, n_vars)
     lambda_2s = np.linspace(0, lambda_max, n_vars)
@@ -67,7 +67,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
             (0.07, "yellow"),
             (0.1, "red"),
             (1.0, "red"),
-        ]
+        ],
     ).to_mpl()
 
     for idx, (ax, test_name, title) in enumerate(
@@ -109,28 +109,60 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
 
         ax.set_facecolor("none")  # So background does not cover title of subplot above
 
-    norm = matplotlib.colors.Normalize(vmin=0, vmax=0.1)
-    colors = my_cmap(np.linspace(0, 0.1, my_cmap.N))
-    color_map = matplotlib.colors.LinearSegmentedColormap.from_list(
-        "cut_my_cmap", colors
+        if idx in [0, 1, 2, 3]:
+            ax.set_zlim(0, 0.065)
+
+    norm1 = matplotlib.colors.Normalize(vmin=0, vmax=0.11)
+    color_map1 = matplotlib.colors.LinearSegmentedColormap.from_list(
+        "cut_my_cmap1", my_cmap(np.linspace(0, 0.11, my_cmap.N))
+    )
+    norm2 = matplotlib.colors.Normalize(vmin=0.8, vmax=1)
+    color_map2 = matplotlib.colors.LinearSegmentedColormap.from_list(
+        "cut_my_cmap2", my_cmap(np.linspace(0.9, 1, my_cmap.N))
     )
 
-    # create some axes to put the colorbar to
-    cax = plt.axes((0.85, 0.35, 0.025, 0.3))
-    cbar = matplotlib.colorbar.ColorbarBase(
-        cax,
-        cmap=color_map,
-        norm=norm,
+    cax1 = plt.axes((0.85, 0.3, 0.025, 0.3))
+    cbar1 = matplotlib.colorbar.ColorbarBase(
+        cax1,
+        cmap=color_map1,
+        norm=norm1,
     )
+    cbar1.set_ticks([0.0, 0.025, 0.05, 0.075, 0.1])
+    cbar1.set_ticklabels([0.0, 0.025, 0.05, 0.075, 0.1])
 
-    cbar.set_ticks([0.0, 0.025, 0.05, 0.075, 0.1])
-    cbar.set_ticklabels([0.0, 0.025, 0.05, 0.075, 0.1])
+    cax2 = plt.axes((0.85, 0.65, 0.025, 0.05))
+    cbar2 = matplotlib.colorbar.ColorbarBase(
+        cax2,
+        cmap=color_map2,
+        norm=norm2,
+    )
+    cbar2.set_ticks([1.0])
+    cbar2.set_ticklabels([1.0])
 
+    ax3 = plt.axes((0.85, 0.61, 0.025, 0.03))
+    for pos in [0.15, 0.5, 0.85]:
+        circ = matplotlib.patches.Circle((0.5, pos), radius=0.1, color="black")
+        ax3.add_patch(circ)
+    ax3.set_axis_off()
+
+    if cov_type == "identity":
+        cov = "$\\Omega = \\mathrm{Id}_3$"
+    else:
+        cov = "$\\Omega$ as in Guggenberger et al. (2012)"
+
+    fig.suptitle(
+        f"Empirical maximal rejection frequencies over $\\tau \\in [0, \\pi)$ for $k={k}$ and {cov}"
+    )
+    # plt.show()
+    # extent = fig.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     plt.savefig(
         output
-        / f"figure_kleibergen19_{cov_type}_k{k}.pdf",  # eps does not support transparency
-        bbox_inches="tight",
-        pad_inches=0.25,  # need some pad for z-axis label left
+        # eps does not support transparency
+        / f"figure_kleibergen19_{cov_type}_k{k}.pdf",
+        # custom as 'tight' cuts of left z-axis label
+        bbox_inches=matplotlib.transforms.Bbox(
+            [[0.8, 0.5], [11.25 - 0.9, 11.81 - 0.2]]
+        ),
     )
 
 
