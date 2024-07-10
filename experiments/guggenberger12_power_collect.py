@@ -10,26 +10,16 @@ os.environ["MKL_NUM_THREADS"] = "1"
 import click
 import numpy as np
 from ivmodels.simulate import simulate_guggenberger12
-from ivmodels.tests import (
-    anderson_rubin_test,
-    conditional_likelihood_ratio_test,
-    lagrange_multiplier_test,
-    likelihood_ratio_test,
-    wald_test,
-)
-
-from ivmodels_simulations.tests import lagrange_multiplier_test_liml
+from ivmodels.tests import lagrange_multiplier_test
 
 tests = {
-    "AR": anderson_rubin_test,
-    "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
-    "CLR": conditional_likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
-    "LM (LIML)": lagrange_multiplier_test_liml,
-    "LR": likelihood_ratio_test,
-    "Wald (LIML)": partial(wald_test, estimator="liml"),
-    "Wald (TSLS)": wald_test,
+    f"lm ({method}, {gamma_0})": partial(
+        lagrange_multiplier_test, optimizer=method, gamma_0=[gamma_0]
+    )
+    for method in ["cg", "newton-cg", "trust-exact", "bfgs"]
+    for gamma_0 in ["zero", "liml"]
 }
+
 
 mx = 1
 mw = 1
@@ -61,7 +51,7 @@ def _run(seed, n, k):
 @click.command()
 @click.option("--n", default=1000)
 @click.option("--k", default=10)
-@click.option("--n_cores", default=1)
+@click.option("--n_cores", default=-1)
 def main(n, k, n_cores):
     import json
     import multiprocessing
@@ -69,17 +59,14 @@ def main(n, k, n_cores):
     from ivmodels_simulations.constants import DATA_PATH
     from ivmodels_simulations.encode import NumpyEncoder
 
-    output = DATA_PATH / "guggenberger12_power"
+    output = DATA_PATH / "optimization" / "guggenberger12_power_LM"
     output.mkdir(parents=True, exist_ok=True)
 
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1
 
-    if n_cores > 1:
-        pool = multiprocessing.Pool(n_cores)
-        result = pool.map(partial(_run, n=n, k=k), range(n_seeds))
-    else:
-        result = [_run(seed, n, k) for seed in range(n_seeds)]
+    pool = multiprocessing.Pool(n_cores)
+    result = pool.map(partial(_run, n=n, k=k), range(n_seeds))
 
     p_values = {test_name: np.zeros((n_seeds, n_betas)) for test_name in tests}
 

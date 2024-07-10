@@ -12,26 +12,23 @@ import click
 import numpy as np
 import pandas as pd
 from ivmodels.simulate import simulate_guggenberger12
-from ivmodels.tests import (
-    anderson_rubin_test,
-    conditional_likelihood_ratio_test,
-    lagrange_multiplier_test,
-    likelihood_ratio_test,
-    wald_test,
-)
-
-from ivmodels_simulations.tests import lagrange_multiplier_test_liml
+from ivmodels.tests import lagrange_multiplier_test, wald_test
 
 wald_test_liml = partial(wald_test, estimator="liml")
 tests = {
-    "AR": anderson_rubin_test,
-    "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
-    "CLR": conditional_likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
-    "LM (LIML)": lagrange_multiplier_test_liml,
-    "LR": likelihood_ratio_test,
-    "Wald (LIML)": wald_test_liml,
-    "Wald (TSLS)": wald_test,
+    f"{method}, {gamma_0}": partial(
+        lagrange_multiplier_test, optimizer=method, gamma_0=gamma_0
+    )
+    for gamma_0 in ["zero", "liml", ["zero", "liml"]]
+    for method in [
+        "cg",
+        "newton-cg",
+        "dogleg",
+        "trust-ncg",
+        "trust-krylov",
+        "trust-exact",
+        "bfgs",
+    ]
 }
 
 mx = 1
@@ -41,6 +38,10 @@ m = mx + mw
 
 def _run(n, seed, k):
     Z, X, y, _, W, beta = simulate_guggenberger12(n=n, k=k, seed=seed, return_beta=True)
+    Z = Z - Z.mean(0)
+    X = X - X.mean(0)
+    y = y - y.mean()
+    W = W - W.mean(0)
 
     return {
         test_name: test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)[1]
@@ -56,12 +57,12 @@ def main(n, n_cores):
 
     from ivmodels_simulations.constants import DATA_PATH
 
-    output = DATA_PATH / "guggenberger12_size"
+    output = DATA_PATH / "optimization" / "guggenberger12_size"
     output.mkdir(parents=True, exist_ok=True)
 
     # With n_seeds=100, on one core, this takes ~7s on my macbook.
     n_seeds = 10000
-    ks = [k for k in [5, 10, 15, 20, 25, 30] if k < n]
+    ks = [k for k in [10, 20, 30] if k < n]
 
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1

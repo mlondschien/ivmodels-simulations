@@ -1,3 +1,4 @@
+# python experiments/guggenberger12_power_aggregate.py
 import json
 
 import click
@@ -7,8 +8,8 @@ from guggenberger12_power_collect import betas
 
 from ivmodels_simulations.constants import DATA_PATH, FIGURES_PATH
 
-input = DATA_PATH / "guggenberger12_power"
-figures = FIGURES_PATH / "guggenberger12_power"
+input = DATA_PATH / "optimization" / "guggenberger12_power"
+figures = FIGURES_PATH / "optimization" / "guggenberger12_power"
 figures.mkdir(parents=True, exist_ok=True)
 
 # https://personal.sron.nl/~pault/#sec:qualitative
@@ -23,6 +24,12 @@ COLORS = {
     "black": "#000000",
     "indigo": "#332288",
     "teal": "#44AA99",
+}
+
+tests = {
+    f"lm ({method}, {gamma_0})": f"{method}, {gamma_0}"
+    for gamma_0 in ["zero", "liml"]
+    for method in ["cg", "newton-cg", "trust-exact", "bfgs"]
 }
 
 COLOR_MAPPING = {
@@ -58,6 +65,8 @@ TESTS = [
     "Wald (TSLS)",
 ]
 
+TESTS = list(tests.keys())
+
 
 @click.command()
 @click.option("--n", default=1000)
@@ -80,8 +89,8 @@ def main(n, k):
                 betas,
                 (np.array(p_values[test_name]) < alpha).mean(axis=0),
                 label=label if alpha == alphas[0] else None,
-                color=COLOR_MAPPING[test_name],
-                linestyle=LINESTYLES_MAPPING[test_name],
+                color=COLOR_MAPPING.get(test_name),
+                linestyle=LINESTYLES_MAPPING.get(test_name),
                 lw=2,
             )
 

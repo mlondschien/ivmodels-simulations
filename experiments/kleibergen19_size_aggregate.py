@@ -1,3 +1,4 @@
+# python experiments/kleibergen19_size_aggregate.py --k 20 --n_seeds 1000 --n_vars 50 --lambda_max 100 --cov_type guggenberger12
 import click
 import cmap
 import h5py
@@ -8,8 +9,8 @@ from kleibergen19_size_collect import data_type
 
 from ivmodels_simulations.constants import DATA_PATH, FIGURES_PATH
 
-output = FIGURES_PATH / "kleibergen19_size"
-input = DATA_PATH / "kleibergen19_size"
+output = FIGURES_PATH / "optimization" / "kleibergen19_size"
+input = DATA_PATH / "optimization" / "kleibergen19_size"
 output.mkdir(parents=True, exist_ok=True)
 
 
@@ -31,14 +32,17 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     p_values = {}
 
     tests = {
-        "AR": "AR",
-        "AR (Guggenberger)": "AR (GKM)",
-        "CLR": "CLR",
-        "LM": "LM (us)",
-        "LM (LIML)": "LM (LIML)",
-        "LR": "LR",
-        "Wald (LIML)": "Wald (LIML)",
-        "Wald (TSLS)": "Wald (TSLS)",
+        f"lm ({method}, {gamma_0})": f"{method}, {gamma_0}"
+        for method in [
+            "cg",
+            "newton-cg",
+            # "dogleg",
+            # "trust-ncg",
+            # "trust-krylov",
+            "trust-exact",
+            "bfgs",
+        ]
+        for gamma_0 in ["zero", "liml"]
     }
 
     for test_name in tests:
@@ -108,9 +112,6 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         ax.zaxis.set_rotate_label(False)
 
         ax.set_facecolor("none")  # So background does not cover title of subplot above
-
-        if idx in [0, 1, 2, 3]:
-            ax.set_zlim(0, 0.065)
 
     norm1 = matplotlib.colors.Normalize(vmin=0, vmax=0.11)
     color_map1 = matplotlib.colors.LinearSegmentedColormap.from_list(

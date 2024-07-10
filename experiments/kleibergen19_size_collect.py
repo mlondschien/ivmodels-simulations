@@ -14,32 +14,19 @@ import h5py
 import numpy as np
 import scipy
 from ivmodels.simulate import simulate_guggenberger12
-from ivmodels.tests import (
-    anderson_rubin_test,
-    conditional_likelihood_ratio_test,
-    lagrange_multiplier_test,
-    likelihood_ratio_test,
-    wald_test,
-)
+from ivmodels.tests import lagrange_multiplier_test
 
 from ivmodels_simulations.constants import DATA_PATH
-from ivmodels_simulations.tests import lagrange_multiplier_test_liml
 
-output = DATA_PATH / "kleibergen19_size"
+output = DATA_PATH / "optimization" / "kleibergen19_size"
 output.mkdir(parents=True, exist_ok=True)
 
 tests = {
-    "AR": anderson_rubin_test,
-    "AR (Guggenberger)": partial(
-        anderson_rubin_test, critical_values="guggenberger2019more"
-    ),
-    "CLR": conditional_likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
-    "LM (LIML)": lagrange_multiplier_test_liml,
-    "LR": likelihood_ratio_test,
-    "Wald (LIML)": partial(wald_test, estimator="liml"),
-    "Wald (TSLS)": wald_test,
-    "CLR (us)": partial(conditional_likelihood_ratio_test, critical_values="us"),
+    f"lm ({method}, {gamma_0})": partial(
+        lagrange_multiplier_test, optimizer=method, gamma_0=[gamma_0]
+    )
+    for method in ["cg", "newton-cg", "trust-exact", "bfgs"]
+    for gamma_0 in ["zero", "liml"]
 }
 
 data_type = np.uint16
@@ -86,7 +73,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
 @click.option("--n_seeds", default=1000)
 @click.option("--cov_type", default="identity")
 def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
-    n_taus = n_vars / 2
+    n_taus = int(n_vars / 2)
     n_lambda_1s = n_vars
     n_lambda_2s = n_vars
 

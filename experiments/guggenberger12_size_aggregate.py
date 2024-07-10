@@ -1,3 +1,4 @@
+# python experiments/guggenberger12_size_aggregate.py
 import click
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,9 +7,10 @@ import scipy
 
 from ivmodels_simulations.constants import DATA_PATH, FIGURES_PATH, TABLES_PATH
 
-figures = FIGURES_PATH / "guggenberger12_size"
+DATA_PATH = DATA_PATH / "optimization"
+figures = FIGURES_PATH / "optimization" / "guggenberger12_size"
 figures.mkdir(parents=True, exist_ok=True)
-tables = TABLES_PATH / "guggenberger12_size"
+tables = TABLES_PATH / "optimization" / "guggenberger12_size"
 tables.mkdir(parents=True, exist_ok=True)
 
 
@@ -18,16 +20,19 @@ def main(n):
 
     alphas = [0.01, 0.05]
 
-    ks = [5, 10, 15, 20, 30]
+    ks = [10, 20, 30]
     tests = [
-        "AR",
-        "AR (GKM)",
-        "CLR",
-        "LM",
-        "LM (LIML)",
-        "LR",
-        "Wald (LIML)",
-        "Wald (TSLS)",
+        f"{method}, {gamma_0}"
+        for method in [
+            "cg",
+            "newton-cg",
+            "dogleg",
+            "trust-ncg",
+            "trust-krylov",
+            "trust-exact",
+            "bfgs",
+        ]
+        for gamma_0 in ["zero", "liml", ["zero", "liml"]]
     ]
 
     p_values = pd.read_csv(
@@ -54,6 +59,8 @@ def main(n):
     with open(tables / f"guggenberger12_type_1_error_n={n}.txt", "w+") as f:
         formatters = [formatter for _ in ks for _ in alphas]
         f.write((100 * type_1_error_table).to_latex(formatters=formatters))
+
+    print(100 * type_1_error_table)
 
     fig_width = 1.5 * 6.3
     fig_height = 1.5 * 4.725
