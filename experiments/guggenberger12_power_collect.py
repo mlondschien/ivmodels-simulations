@@ -24,7 +24,7 @@ tests = {
     "AR": anderson_rubin_test,
     "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
     "CLR": conditional_likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
+    "LM (ours)": lagrange_multiplier_test,
     "LM (LIML)": lagrange_multiplier_test_liml,
     "LR": likelihood_ratio_test,
     "Wald (LIML)": partial(wald_test, estimator="liml"),
@@ -48,7 +48,7 @@ p_values = {test_name: np.zeros((n_seeds, n_betas)) for test_name in tests}
 
 def _run(seed, n, k):
     p_values = {test_name: np.zeros(n_betas) for test_name in tests}
-    Z, X, y, _, W = simulate_guggenberger12(n, k=k, seed=seed, h12=10)
+    Z, X, y, _, W, _ = simulate_guggenberger12(n, k=k, seed=seed, h12=10)
 
     for test_name, test in tests.items():
         for beta_idx, beta_value in enumerate(betas):

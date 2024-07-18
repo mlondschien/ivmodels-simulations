@@ -27,7 +27,7 @@ tests = {
     "AR": anderson_rubin_test,
     "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
     "CLR": conditional_likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
+    "LM (ours)": lagrange_multiplier_test,
     "LM (LIML)": lagrange_multiplier_test_liml,
     "LR": likelihood_ratio_test,
     "Wald (LIML)": wald_test_liml,
@@ -40,7 +40,7 @@ m = mx + mw
 
 
 def _run(n, seed, k):
-    Z, X, y, _, W, beta = simulate_guggenberger12(n=n, k=k, seed=seed, return_beta=True)
+    Z, X, y, _, W, _, beta = simulate_guggenberger12(n=n, k=k, seed=seed, return_beta=True)
 
     return {
         test_name: test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)[1]

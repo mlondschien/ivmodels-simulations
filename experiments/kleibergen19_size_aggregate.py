@@ -30,16 +30,15 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     file = h5py.File(input / name, "r")
     p_values = {}
 
-    tests = {
-        "AR": "AR",
-        "AR (Guggenberger)": "AR (GKM)",
-        "CLR": "CLR",
-        "LM": "LM (us)",
-        "LM (LIML)": "LM (LIML)",
-        "LR": "LR",
-        "Wald (LIML)": "Wald (LIML)",
-        "Wald (TSLS)": "Wald (TSLS)",
-    }
+    tests = [        "AR",
+        "AR (GKM)",
+        "CLR",
+        "LM (ours)",
+        "LM (LIML)",
+        "LR",
+        "Wald (LIML)",
+        "Wald (TSLS)",
+    ]
 
     for test_name in tests:
         p_values[test_name] = file[test_name]["p_values"][()] / np.iinfo(data_type).max
@@ -70,10 +69,10 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         ],
     ).to_mpl()
 
-    for idx, (ax, test_name, title) in enumerate(
-        zip(axes.flat, tests.keys(), tests.values())
+    for idx, (ax, test_name) in enumerate(
+        zip(axes.flat, tests)
     ):
-        ax.set_title(title, loc="left")
+        ax.set_title(test_name, loc="left")
 
         data = (p_values[test_name] < 0.05).mean(axis=0).max(axis=0)
 

@@ -30,16 +30,15 @@ output.mkdir(parents=True, exist_ok=True)
 
 tests = {
     "AR": anderson_rubin_test,
-    "AR (Guggenberger)": partial(
+    "AR (GKM)": partial(
         anderson_rubin_test, critical_values="guggenberger2019more"
     ),
     "CLR": conditional_likelihood_ratio_test,
-    "LM": lagrange_multiplier_test,
+    "LM (ours)": lagrange_multiplier_test,
     "LM (LIML)": lagrange_multiplier_test_liml,
     "LR": likelihood_ratio_test,
     "Wald (LIML)": partial(wald_test, estimator="liml"),
     "Wald (TSLS)": wald_test,
-    "CLR (us)": partial(conditional_likelihood_ratio_test, critical_values="us"),
 }
 
 data_type = np.uint16
@@ -65,7 +64,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
             rho = 0
         else:
             rho = concentration[0, 1] / h11 / h12
-        Z, X, y, _, W, beta = simulate_guggenberger12(
+        Z, X, y, _, W, _, beta = simulate_guggenberger12(
             n, k=k, seed=seed, return_beta=True, h11=h11, h12=h12, rho=rho, cov=cov
         )
 
@@ -86,7 +85,7 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
 @click.option("--n_seeds", default=1000)
 @click.option("--cov_type", default="identity")
 def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
-    n_taus = n_vars / 2
+    n_taus = int(n_vars / 2)
     n_lambda_1s = n_vars
     n_lambda_2s = n_vars
 
