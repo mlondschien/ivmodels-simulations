@@ -1,7 +1,6 @@
 import multiprocessing
 import os
 from functools import partial
-from ivmodels_simulations.tests import lagrange_multiplier_test_one_step
 
 # isort: off
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -17,12 +16,11 @@ from ivmodels.tests import lagrange_multiplier_test, wald_test
 
 wald_test_liml = partial(wald_test, estimator="liml")
 tests = {
-    "1 - truth - liml": partial(lagrange_multiplier_test_one_step, ddlm="truth", gamma0="liml"),
-    "1 - truth - gamma0": partial(lagrange_multiplier_test_one_step, ddlm="truth", gamma0=np.array([1])),
-    "1 - ar - liml": partial(lagrange_multiplier_test_one_step, ddlm="ar", gamma0="liml"),
-    "1 - ar - gamma0": partial(lagrange_multiplier_test_one_step, ddlm="ar", gamma0=np.array([1])),
-    "1 - kappa - liml": partial(lagrange_multiplier_test_one_step, ddlm="kappa", gamma0="liml"),
-    "1 - kappa - gamma0": partial(lagrange_multiplier_test_one_step, ddlm="kappa", gamma0=np.array([1])),
+    f"lm ({method}, {gamma_0})": partial(
+        lagrange_multiplier_test, optimizer=method, gamma_0=[gamma_0]
+    )
+    for method in ["cg", "newton-cg", "trust-exact", "bfgs"]
+    for gamma_0 in ["zero", "liml", ["zero", "liml"]]
 }
 
 mx = 1
@@ -31,11 +29,9 @@ m = mx + mw
 
 
 def _run(n, seed, k):
-    Z, X, y, _, W, beta = simulate_guggenberger12(n=n, k=k, seed=seed, return_beta=True)
-    Z = Z - Z.mean(0)
-    X = X - X.mean(0)
-    y = y - y.mean()
-    W = W - W.mean(0)
+    Z, X, y, _, W, _, beta = simulate_guggenberger12(
+        n=n, k=k, seed=seed, return_beta=True
+    )
 
     return {
         test_name: test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)[1]
@@ -55,8 +51,8 @@ def main(n, n_cores):
     output.mkdir(parents=True, exist_ok=True)
 
     # With n_seeds=100, on one core, this takes ~7s on my macbook.
-    n_seeds = 2000
-    ks = [k for k in [10, 20, 30] if k < n]
+    n_seeds = 25000
+    ks = [k for k in [5, 10, 15, 20, 25, 30] if k < n]
 
     if n_cores == -1:
         n_cores = multiprocessing.cpu_count() - 1

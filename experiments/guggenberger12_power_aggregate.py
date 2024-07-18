@@ -36,7 +36,7 @@ COLOR_MAPPING = {
     "AR": COLORS["indigo"],
     "AR (GKM)": COLORS["yellow"],
     "CLR": COLORS["green"],
-    "LM": COLORS["black"],
+    "LM (ours)": COLORS["black"],
     "LM (LIML)": COLORS["grey"],
     "LR": COLORS["cyan"],
     "Wald (LIML)": COLORS["red"],
@@ -47,7 +47,7 @@ LINESTYLES_MAPPING = {
     "AR": "-",
     "AR (GKM)": (0, (5, 5)),  # loosely dashed
     "CLR": "dotted",
-    "LM": "-",
+    "LM (ours)": "-",
     "LM (LIML)": (0, (5, 5)),
     "LR": "-",
     "Wald (LIML)": "-",
@@ -58,7 +58,7 @@ TESTS = [
     "AR",
     "AR (GKM)",
     "CLR",
-    "LM",
+    "LM (ours)",
     "LM (LIML)",
     "LR",
     "Wald (LIML)",
@@ -84,7 +84,7 @@ def main(n, k):
 
     for alpha, ax in zip(alphas, axes):
         for test_name in TESTS:
-            label = "LM (us)" if test_name == "LM" else test_name
+            label = "LM (ours)" if test_name == "LM" else test_name
             ax.plot(
                 betas,
                 (np.array(p_values[test_name]) < alpha).mean(axis=0),

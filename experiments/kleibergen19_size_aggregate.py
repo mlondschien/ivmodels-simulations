@@ -74,10 +74,8 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         ],
     ).to_mpl()
 
-    for idx, (ax, test_name, title) in enumerate(
-        zip(axes.flat, tests.keys(), tests.values())
-    ):
-        ax.set_title(title, loc="left")
+    for idx, (ax, test_name) in enumerate(zip(axes.flat, tests)):
+        ax.set_title(test_name, loc="left")
 
         data = (p_values[test_name] < 0.05).mean(axis=0).max(axis=0)
 

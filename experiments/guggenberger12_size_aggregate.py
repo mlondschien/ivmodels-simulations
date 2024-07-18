@@ -22,12 +22,14 @@ def main(n):
 
     ks = [10, 20, 30]
     tests = [
-        "1 - truth - liml",
-        "1 - truth - gamma0",
-        "1 - ar - liml",
-        "1 - ar - gamma0",
-        "1 - kappa - liml",
-        "1 - kappa - gamma0",
+        "AR",
+        "AR (GKM)",
+        "CLR",
+        "LM (ours)",
+        "LM (LIML)",
+        "LR",
+        "Wald (LIML)",
+        "Wald (TSLS)",
     ]
 
     p_values = pd.read_csv(
@@ -71,8 +73,7 @@ def main(n):
     )
     for k_idx, k in enumerate([10, 20, 30]):
         for test_idx, test_name in enumerate(tests):
-            key = "AR (GKM)" if test_name == "AR (Guggenberger)" else test_name
-            values = p_values[(key, str(k))]
+            values = p_values[(test_name, str(k))]
             if len(values) > 100:
                 values = np.sort(values)[(n_seeds // 200) :: (n_seeds // 100)]
 
