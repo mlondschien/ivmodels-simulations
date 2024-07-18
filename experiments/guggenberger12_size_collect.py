@@ -62,7 +62,7 @@ def main(n, n_cores):
     output.mkdir(parents=True, exist_ok=True)
 
     # With n_seeds=100, on one core, this takes ~7s on my macbook.
-    n_seeds = 10000
+    n_seeds = 25000
     ks = [k for k in [5, 10, 15, 20, 25, 30] if k < n]
 
     if n_cores == -1:

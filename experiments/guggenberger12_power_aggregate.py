@@ -40,8 +40,8 @@ LINESTYLES_MAPPING = {
     "AR": "-",
     "AR (GKM)": (0, (5, 5)),  # loosely dashed
     "CLR": "dotted",
-    "LM": "-",
-    "LM (ours) (LIML)": (0, (5, 5)),
+    "LM (ours)": "-",
+    "LM (LIML)": (0, (5, 5)),
     "LR": "-",
     "Wald (LIML)": "-",
     "Wald (TSLS)": "-",
