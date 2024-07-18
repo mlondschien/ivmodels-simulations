@@ -40,7 +40,9 @@ m = mx + mw
 
 
 def _run(n, seed, k):
-    Z, X, y, _, W, _, beta = simulate_guggenberger12(n=n, k=k, seed=seed, return_beta=True)
+    Z, X, y, _, W, _, beta = simulate_guggenberger12(
+        n=n, k=k, seed=seed, return_beta=True
+    )
 
     return {
         test_name: test(Z=Z, X=X, y=y, W=W, beta=beta, fit_intercept=False)[1]

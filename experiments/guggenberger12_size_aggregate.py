@@ -69,7 +69,7 @@ def main(n):
     )
     for k_idx, k in enumerate([10, 20, 30]):
         for test_idx, test_name in enumerate(tests):
-            values = p_values[(key, str(k))]
+            values = p_values[(test_name, str(k))]
             if len(values) > 100:
                 values = np.sort(values)[(n_seeds // 200) :: (n_seeds // 100)]
 

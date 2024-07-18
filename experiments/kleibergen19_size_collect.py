@@ -30,9 +30,7 @@ output.mkdir(parents=True, exist_ok=True)
 
 tests = {
     "AR": anderson_rubin_test,
-    "AR (GKM)": partial(
-        anderson_rubin_test, critical_values="guggenberger2019more"
-    ),
+    "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
     "CLR": conditional_likelihood_ratio_test,
     "LM (ours)": lagrange_multiplier_test,
     "LM (LIML)": lagrange_multiplier_test_liml,

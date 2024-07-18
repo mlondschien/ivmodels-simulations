@@ -30,7 +30,8 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     file = h5py.File(input / name, "r")
     p_values = {}
 
-    tests = [        "AR",
+    tests = [
+        "AR",
         "AR (GKM)",
         "CLR",
         "LM (ours)",
@@ -69,9 +70,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         ],
     ).to_mpl()
 
-    for idx, (ax, test_name) in enumerate(
-        zip(axes.flat, tests)
-    ):
+    for idx, (ax, test_name) in enumerate(zip(axes.flat, tests)):
         ax.set_title(test_name, loc="left")
 
         data = (p_values[test_name] < 0.05).mean(axis=0).max(axis=0)
