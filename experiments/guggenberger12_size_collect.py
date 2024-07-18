@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 from functools import partial
+from ivmodels_simulations.tests import lagrange_multiplier_test_one_step
 
 # isort: off
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -16,19 +17,12 @@ from ivmodels.tests import lagrange_multiplier_test, wald_test
 
 wald_test_liml = partial(wald_test, estimator="liml")
 tests = {
-    f"{method}, {gamma_0}": partial(
-        lagrange_multiplier_test, optimizer=method, gamma_0=gamma_0
-    )
-    for gamma_0 in ["zero", "liml", ["zero", "liml"]]
-    for method in [
-        "cg",
-        "newton-cg",
-        "dogleg",
-        "trust-ncg",
-        "trust-krylov",
-        "trust-exact",
-        "bfgs",
-    ]
+    "1 - truth - liml": partial(lagrange_multiplier_test_one_step, ddlm="truth", gamma0="liml"),
+    "1 - truth - gamma0": partial(lagrange_multiplier_test_one_step, ddlm="truth", gamma0=np.array([1])),
+    "1 - ar - liml": partial(lagrange_multiplier_test_one_step, ddlm="ar", gamma0="liml"),
+    "1 - ar - gamma0": partial(lagrange_multiplier_test_one_step, ddlm="ar", gamma0=np.array([1])),
+    "1 - kappa - liml": partial(lagrange_multiplier_test_one_step, ddlm="kappa", gamma0="liml"),
+    "1 - kappa - gamma0": partial(lagrange_multiplier_test_one_step, ddlm="kappa", gamma0=np.array([1])),
 }
 
 mx = 1
@@ -57,11 +51,11 @@ def main(n, n_cores):
 
     from ivmodels_simulations.constants import DATA_PATH
 
-    output = DATA_PATH / "optimization" / "guggenberger12_size"
+    output = DATA_PATH / "testing" / "guggenberger12_size"
     output.mkdir(parents=True, exist_ok=True)
 
     # With n_seeds=100, on one core, this takes ~7s on my macbook.
-    n_seeds = 10000
+    n_seeds = 2000
     ks = [k for k in [10, 20, 30] if k < n]
 
     if n_cores == -1:

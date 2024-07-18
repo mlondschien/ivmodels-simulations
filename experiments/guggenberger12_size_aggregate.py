@@ -7,10 +7,10 @@ import scipy
 
 from ivmodels_simulations.constants import DATA_PATH, FIGURES_PATH, TABLES_PATH
 
-DATA_PATH = DATA_PATH / "optimization"
-figures = FIGURES_PATH / "optimization" / "guggenberger12_size"
+DATA_PATH = DATA_PATH / "testing"
+figures = FIGURES_PATH / "testing" / "guggenberger12_size"
 figures.mkdir(parents=True, exist_ok=True)
-tables = TABLES_PATH / "optimization" / "guggenberger12_size"
+tables = TABLES_PATH / "testing" / "guggenberger12_size"
 tables.mkdir(parents=True, exist_ok=True)
 
 
@@ -22,17 +22,12 @@ def main(n):
 
     ks = [10, 20, 30]
     tests = [
-        f"{method}, {gamma_0}"
-        for method in [
-            "cg",
-            "newton-cg",
-            "dogleg",
-            "trust-ncg",
-            "trust-krylov",
-            "trust-exact",
-            "bfgs",
-        ]
-        for gamma_0 in ["zero", "liml", ["zero", "liml"]]
+        "1 - truth - liml",
+        "1 - truth - gamma0",
+        "1 - ar - liml",
+        "1 - ar - gamma0",
+        "1 - kappa - liml",
+        "1 - kappa - gamma0",
     ]
 
     p_values = pd.read_csv(

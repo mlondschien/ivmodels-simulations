@@ -106,4 +106,4 @@ cbar = matplotlib.colorbar.Colorbar(
 )  # , values=im.cvalues)
 cbar.set_label("$\\log(\\mathrm{AR}(\\beta))$", labelpad=-20, y=1.08, rotation=0)
 # plt.show()
-fig.savefig(FIGURES_PATH / "figure_tc2_counterexample.eps")
+# fig.savefig(FIGURES_PATH / "figure_tc2_counterexample.eps")
