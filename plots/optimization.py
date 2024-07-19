@@ -56,34 +56,39 @@ for k_idx, k in enumerate(ks):
 
         stat_at_min, minimizer = lm.lm(beta=beta0, return_minimizer=True)
 
-        axes[seed, k_idx].scatter(
-            x=liml,
-            y=stat_at_liml,
-            color="black",
-            marker="o",
-            label="LIML",
-            zorder=10,
-            clip_on=False,
-        )
-        axes[seed, k_idx].scatter(
-            x=gamma0,
-            y=stat_at_truth,
-            color="black",
-            marker="x",
-            label="$\\gamma_0$",
-            zorder=10,
-            clip_on=False,
-        )
+        if xlim[0] < liml < xlim[1]:
+            axes[seed, k_idx].scatter(
+                x=liml,
+                y=stat_at_liml,
+                color="darkorange",
+                marker="x",
+                label="LIML",
+                zorder=10,
+                clip_on=False,
+            )
 
-        axes[seed, k_idx].scatter(
-            x=minimizer,
-            y=stat_at_min,
-            color="black",
-            marker="*",
-            label="minimizer",
-            zorder=10,
-            clip_on=False,
-        )
+        if xlim[0] < gamma0 < xlim[1]:
+            axes[seed, k_idx].scatter(
+                x=gamma0,
+                y=stat_at_truth,
+                color="black",
+                marker="o",
+                label="$\\gamma_0$",
+                zorder=9,
+                clip_on=False,
+                alpha=0.5,
+            )
+
+        if xlim[0] < minimizer < xlim[1]:
+            axes[seed, k_idx].scatter(
+                x=minimizer,
+                y=stat_at_min,
+                color="red",
+                marker="*",
+                label="minimizer",
+                zorder=11,
+                clip_on=False,
+            )
         print(f"seed={seed}, k={k}, minimizer={minimizer}, stat_at_min={stat_at_min}")
 
         axes[seed, k_idx].set_xlim(xlim)
@@ -99,5 +104,5 @@ for k_idx, k in enumerate(ks):
             axes[seed, k_idx].set_xticklabels([])
 
 handles, labels = axes[0, 0].get_legend_handles_labels()
-fig.legend(handles, labels, loc="lower center", ncol=4, bbox_to_anchor=(0.5, 0.03))
+fig.legend(handles, labels, loc="lower center", ncol=5, bbox_to_anchor=(0.5, 0.03))
 fig.savefig(FIGURES_PATH / "optimization.pdf", bbox_inches="tight")
