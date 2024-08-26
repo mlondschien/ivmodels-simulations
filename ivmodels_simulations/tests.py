@@ -4,7 +4,7 @@ from ivmodels import KClass
 from ivmodels.utils import _check_inputs, oproj, proj
 
 
-def lagrange_multiplier_test_liml(*, Z, X, y, beta, W, C, fit_intercept=True):
+def lagrange_multiplier_test_liml(*, Z, X, y, beta, W, C=None, fit_intercept=True):
     "Incorrect subset LM test via plugging in the LIML."
 
     Z, X, y, W, C, _, beta = _check_inputs(Z, X, y, W=W, beta=beta, C=C)
