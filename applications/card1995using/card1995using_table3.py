@@ -1,3 +1,4 @@
+# Replicate Card (1995) Table 3
 import numpy as np
 from ivmodels import KClass
 from ivmodels.utils import proj

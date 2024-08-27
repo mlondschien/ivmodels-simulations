@@ -1,3 +1,4 @@
+# Replicate Table 5 from Card (1995)
 import numpy as np
 from ivmodels import KClass
 from ivmodels.utils import proj
