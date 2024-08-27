@@ -105,20 +105,3 @@ def load_card1995using(cache=True):
     df["f8"] = df["famed"].eq(8).astype("float")  # mom and dad both nonmissing
 
     return df
-
-
-def load_angrist1990lifetime(cache=True):
-    cache_file = CACHE_DIR / "angrist1990lifetime" / "cwhsc_new.parquet"
-    cache_file.parent.mkdir(exist_ok=True, parents=True)
-
-    if cache and cache_file.exists():
-        df = pd.read_parquet(cache_file)
-    else:
-        url = "https://economics.mit.edu/sites/default/files/inline-files/cwhsc_new.dta"
-        response = requests.get(url)
-        df = pd.read_stata(BytesIO(response.content))
-
-        if cache:
-            df.to_parquet(cache_file)
-
-    return df
