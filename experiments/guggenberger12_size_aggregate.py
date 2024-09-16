@@ -64,7 +64,7 @@ def main(n):
         nrows=len(tests), ncols=3, figsize=(fig_width, fig_height * 5 / 3)
     )
     fig.suptitle(
-        "QQ-plots of $p$-values under the null hypothesis gainst the uniform distribution",
+        "QQ-plots of $p$-values under the null hypothesis against the uniform distribution",
         y=0.94,
     )
     for k_idx, k in enumerate([10, 20, 30]):

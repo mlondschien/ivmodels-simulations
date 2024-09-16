@@ -13,4 +13,8 @@ dependencies:
   - click
   - h5py
   - matplotlib
-  - cmap
+  - cmap  # Color map in figure 3
+  - jinja  # Pretty print tables
+  - tabulate  # Pretty print tables
+  - requests  # Download card data
+  - pyarrow  # cache data
