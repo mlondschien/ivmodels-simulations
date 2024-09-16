@@ -1,19 +1,22 @@
 import numpy as np
 import scipy
 from ivmodels import KClass
-from ivmodels.tests.utils import _check_test_inputs
-from ivmodels.utils import proj
+from ivmodels.utils import _check_inputs, oproj, proj
 
 
-def lagrange_multiplier_test_liml(*, Z, X, y, beta, W, fit_intercept):
+def lagrange_multiplier_test_liml(*, Z, X, y, beta, W, C=None, fit_intercept=True):
     "Incorrect subset LM test via plugging in the LIML."
 
-    Z, X, y, W, _, beta = _check_test_inputs(Z, X, y, W=W, beta=beta)
+    Z, X, y, W, C, _, beta = _check_inputs(Z, X, y, W=W, beta=beta, C=C)
 
-    n = X.shape[0]
-    liml = KClass(kappa="liml", fit_intercept=fit_intercept).fit(
-        X=W, y=y - X @ beta, Z=Z
-    )
+    n, k = Z.shape
+
+    if fit_intercept:
+        C = np.hstack([C, np.ones((n, 1))])
+
+    X, W, Z, y = oproj(C, X, W, Z, y)
+
+    liml = KClass(kappa="liml", fit_intercept=False).fit(X=W, y=y - X @ beta, Z=Z)
 
     residuals = y - X @ beta - W @ liml.coef_
     residuals_proj = proj(Z, residuals)
@@ -28,10 +31,7 @@ def lagrange_multiplier_test_liml(*, Z, X, y, beta, W, fit_intercept):
     residuals_proj_St = proj(St_proj, residuals)
 
     statistic = (
-        (n - Z.shape[1] - fit_intercept)
-        * residuals_proj_St.T
-        @ residuals_proj_St
-        / sigma_hat
+        (n - k - C.shape[1]) * residuals_proj_St.T @ residuals_proj_St / sigma_hat
     )
     p_value = 1 - scipy.stats.chi2(df=X.shape[1]).cdf(statistic)
     return statistic, p_value

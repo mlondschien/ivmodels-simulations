@@ -22,8 +22,19 @@ COLOR_CYCLE = {
     "Wald (TSLS)": COLORS["blue"],
     "LM (LIML)": COLORS["grey"],
     "LM": COLORS["black"],
+    "LM (ours)": COLORS["black"],
 }
 
+LINESTYLES_MAPPING = {
+    "AR": "-",
+    "AR (GKM)": (0, (5, 5)),  # loosely dashed
+    "CLR": "dotted",
+    "LM (ours)": "-",
+    "LM (LIML)": (0, (5, 5)),
+    "LR": "-",
+    "Wald (LIML)": "-",
+    "Wald (TSLS)": "-",
+}
 DATA_PATH = Path(__file__).parents[1] / "data"
 FIGURES_PATH = Path(__file__).parents[1] / "figures"
 TABLES_PATH = Path(__file__).parents[1] / "tables"
