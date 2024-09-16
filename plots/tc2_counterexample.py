@@ -50,7 +50,6 @@ for idx, cov, title in [
         b=np.zeros(2),
         c=-y.T @ y * quantile_above,
     )
-    print(f"lambdamin: {lambdamin}, alpha: {alpha}")
 
     xrange = (-3, 3)
     yrange = (-15, 15)

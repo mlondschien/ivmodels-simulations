@@ -151,8 +151,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     fig.suptitle(
         f"Empirical maximal rejection frequencies over $\\tau \\in [0, \\pi)$ for $k={k}$ and {cov}"
     )
-    # plt.show()
-    # extent = fig.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    plt.show()
     plt.savefig(
         output
         # eps does not support transparency

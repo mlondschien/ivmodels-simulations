@@ -13,3 +13,4 @@ dependencies:
   - click
   - h5py
   - matplotlib
+  - cmap
