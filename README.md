@@ -95,10 +95,14 @@ prints table 4. It also creates `figures/card_0.pdf` (figure 14).
 It also prints table 8.
 
 ### Table 5
+Download `20060431_risk.dta` from the [replication package](https://www.openicpsr.org/openicpsr/project/112336/version/V1/view) of [Tanaka et al. 2010](https://www.aeaweb.org/articles?id=10.1257/aer.100.1.557).
+Copy this to
+`applications_data/tanaka2006risk/20060431_risk.dta`
+and run
 ```bash
 python applications/tanaka2006risk/tanaka2006risk.py
 ```
-print table 5.
+This prints table 5.
 
 ### Tables 6, 7
 
