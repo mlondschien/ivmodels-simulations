@@ -69,7 +69,6 @@ def main(n, k):
     alphas = [0.05, 0.01]
     fig, axes = plt.subplots(nrows=len(alphas), ncols=1, figsize=(10, 5))
     fig.tight_layout(rect=[0.1, 0.01, 0.8, 0.98])
-    # plt.tight_layout()# h_pad=-3)
     if len(alphas) == 1:
         axes = [axes]
 
@@ -110,6 +109,7 @@ def main(n, k):
 
     ax.set_xlabel("$\\beta$")
     fig.legend(bbox_to_anchor=(0.78, 0.5), loc="center left")
+    plt.show()
     fig.savefig(
         figures / f"guggenberger12_power_n={n}_k={k}_alphas={alphas}.pdf",
         bbox_inches="tight",

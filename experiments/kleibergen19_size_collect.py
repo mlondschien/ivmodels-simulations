@@ -77,10 +77,10 @@ def _run(tau, lambda_1, lambda_2, n, k, n_seeds, cov):
 @click.command()
 @click.option("--n", default=1000)
 @click.option("--k", default=100)
-@click.option("--n_vars", default=20)
+@click.option("--n_vars", default=50)
 @click.option("--n_cores", default=-1)
-@click.option("--lambda_max", default=20)
-@click.option("--n_seeds", default=1000)
+@click.option("--lambda_max", default=100)
+@click.option("--n_seeds", default=2500)
 @click.option("--cov_type", default="identity")
 def main(n, k, n_vars, n_cores, lambda_max, n_seeds, cov_type):
     n_taus = int(n_vars / 2)

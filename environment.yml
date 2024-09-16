@@ -5,11 +5,16 @@ channels:
 dependencies:
   - python>=3.7
   - numpy
+  - ivmodels>=0.5.0
   - scipy
-  - pytest  # tests only
   - scikit-learn
   - glum
-  - pandas  # optional
+  - pandas
   - click
   - h5py
   - matplotlib
+  - cmap  # Color map in figure 3
+  - jinja  # Pretty print tables
+  - tabulate  # Pretty print tables
+  - requests  # Download card data
+  - pyarrow  # cache data

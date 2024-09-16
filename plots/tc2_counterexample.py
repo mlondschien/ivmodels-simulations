@@ -50,7 +50,6 @@ for idx, cov, title in [
         b=np.zeros(2),
         c=-y.T @ y * quantile_above,
     )
-    print(f"lambdamin: {lambdamin}, alpha: {alpha}")
 
     xrange = (-3, 3)
     yrange = (-15, 15)
@@ -105,5 +104,6 @@ cbar = matplotlib.colorbar.Colorbar(
     cax, cmap=im.cmap, norm=im.norm
 )  # , values=im.cvalues)
 cbar.set_label("$\\log(\\mathrm{AR}(\\beta))$", labelpad=-20, y=1.08, rotation=0)
-# plt.show()
-fig.savefig(FIGURES_PATH / "figure_tc2_counterexample.eps")
+
+plt.show()
+fig.savefig(FIGURES_PATH / "figure_tc2_counterexample.pdf", bbox_inches="tight")
