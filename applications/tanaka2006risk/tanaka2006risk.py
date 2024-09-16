@@ -126,9 +126,9 @@ for ldx, x_w_c_d_z_list in enumerate(x_w_c_d_z_lists):
             model.fit(X=XW, y=y, Z=Z, C=CD)
 
             table.loc[(f"estimate ({est})", ""), (idx, 0)] = f"{model.coef_[cdx]:.3f}"
-            table.loc[
-                (f"estimate ({est})", ""), (idx, 1)
-            ] = f"({np.abs(model.coef_[cdx]) / np.sqrt(wald_test(X=X, W=W, y=y, Z=Z, C=C, D=D, beta=np.zeros(1), estimator=est)[0]):.3f})"
+            table.loc[(f"estimate ({est})", ""), (idx, 1)] = (
+                f"({np.abs(model.coef_[cdx]) / np.sqrt(wald_test(X=X, W=W, y=y, Z=Z, C=C, D=D, beta=np.zeros(1), estimator=est)[0]):.3f})"
+            )
 
         for test_name, test, inverse_test in tests:
             stat, p_value = test(X=X, W=W, y=y, Z=Z, C=C, D=D, beta=np.zeros(1))

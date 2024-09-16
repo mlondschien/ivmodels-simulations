@@ -1,6 +1,6 @@
 repos:
  - repo: https://github.com/Quantco/pre-commit-mirrors-black
-   rev: 22.12.0
+   rev: 24.4.2
    hooks:
      - id: black-conda
        args:
@@ -8,12 +8,12 @@ repos:
          - --target-version=py38
        exclude: changeforest_simulations/methods/multirank/
  - repo: https://github.com/Quantco/pre-commit-mirrors-isort
-   rev: '5.12.0'
+   rev: '5.13.2'
    hooks:
     - id: isort-conda
       additional_dependencies: [toml]
       exclude: changeforest_simulations/methods/multirank/
  - repo: https://github.com/Quantco/pre-commit-mirrors-flake8
-   rev: 6.0.0
+   rev: 7.1.1
    hooks:
     - id: flake8-conda
