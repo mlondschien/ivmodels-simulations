@@ -18,12 +18,9 @@ from ivmodels.tests import (
     anderson_rubin_test,
     conditional_likelihood_ratio_test,
     lagrange_multiplier_test,
-    likelihood_ratio_test,
-    wald_test,
 )
 
 from ivmodels_simulations.constants import DATA_PATH
-from ivmodels_simulations.tests import lagrange_multiplier_test_liml
 
 output = DATA_PATH / "kleibergen19_size"
 output.mkdir(parents=True, exist_ok=True)
@@ -33,10 +30,6 @@ tests = {
     "AR (GKM)": partial(anderson_rubin_test, critical_values="guggenberger2019more"),
     "CLR": conditional_likelihood_ratio_test,
     "LM (ours)": lagrange_multiplier_test,
-    "LM (LIML)": lagrange_multiplier_test_liml,
-    "LR": likelihood_ratio_test,
-    "Wald (LIML)": partial(wald_test, estimator="liml"),
-    "Wald (TSLS)": wald_test,
 }
 
 data_type = np.uint16
