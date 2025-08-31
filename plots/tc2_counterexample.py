@@ -9,8 +9,6 @@ from ivmodels.utils import proj
 from ivmodels_simulations.constants import FIGURES_PATH
 
 fig, axes = plt.subplots(ncols=2, figsize=(7, 2.5))
-# plt.tight_layout(rect=[0.05, 0.02, 0.88, 0.98])
-
 
 for idx, cov, title in [
     [0, np.diag([1, 1]), "Technical condition 2 does not hold"],
@@ -87,20 +85,7 @@ for idx, cov, title in [
                 Z=Z, X=S, y=y, beta=beta, fit_intercept=False
             )[0]
 
-    # norm = matplotlib.colors.SymLogNorm(linthresh=0.03, linscale=0.03, vmin=0.0, vmax=1.0)
-    # color_map1 = matplotlib.colors.LinearSegmentedColormap.from_list(
-    #     "cut_my_cmap1", my_cmap(np.linspace(0, 0.08, my_cmap.N))
-    # )
-    # cax1 = plt.axes((0.92, 0.35, 0.025, 0.3))
-    # cbar1 = matplotlib.colorbar.ColorbarBase(
-    #     cax1,
-    #     cmap=color_map1,
-    #     norm=norm1,
-    # )
-    # cbar1.set_ticks([0.0, 0.025, 0.05, 0.075])
-    # cbar1.set_ticklabels([0.0, 0.025, 0.05, 0.075])
-
-    im = axes[idx].contourf(xx, yy, 3 * zz, levels=100)  # , norm=norm, cmap="viridis")
+    im = axes[idx].contourf(xx, yy, 3 * zz, levels=100)
     axes[idx].plot(
         inverse_ar_above._boundary()[:, 0],
         inverse_ar_above._boundary()[:, 1],

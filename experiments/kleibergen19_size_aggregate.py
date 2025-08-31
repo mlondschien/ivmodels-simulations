@@ -39,10 +39,6 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         "AR (GKM)",
         "CLR",
         "LM",
-        # "LM (LIML)",
-        # "LR",
-        # "Wald (LIML)",
-        # "Wald (TSLS)",
     ]
 
     for test_name in tests:
@@ -54,7 +50,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
     plt.rcParams["axes.titlepad"] = 0
     plt.locator_params(nbins=2)
 
-    fig_width = 1.5 * 7.5  # * 1.1
+    fig_width = 1.5 * 7.5
     fig_height = 1.5 * 4.72 * 5 / 3
     fig, axes = plt.subplots(
         nrows=2,
@@ -117,7 +113,6 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
 
         if idx in [0, 1, 2, 3]:
             ax.set_zlim(0, 0.065)
-            # ax.set_zticks([0.0, 0.025, 0.05, 0.075])
 
     norm1 = matplotlib.colors.Normalize(vmin=0, vmax=0.075)
     color_map1 = matplotlib.colors.LinearSegmentedColormap.from_list(
@@ -141,7 +136,6 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         f"Empirical maximal rejection frequencies over $\\tau \\in [0, \\pi)$ for $k={k}$ and {cov}",
         y=0.8,
     )
-    # plt.show()
     plt.savefig(
         output
         # eps does not support transparency
