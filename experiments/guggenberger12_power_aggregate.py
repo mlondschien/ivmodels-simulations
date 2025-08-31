@@ -50,12 +50,12 @@ LINESTYLES_MAPPING = {
 TESTS = [
     "AR",
     "AR (GKM)",
-    "CLR",
+    # "LM (LIML)",
+    # "LR",
+    # "Wald (LIML)",
+    # "Wald (TSLS)",
     "LM (ours)",
-    "LM (LIML)",
-    "LR",
-    "Wald (LIML)",
-    "Wald (TSLS)",
+    "CLR",
 ]
 
 
@@ -109,7 +109,7 @@ def main(n, k):
 
     ax.set_xlabel("$\\beta$")
     fig.legend(bbox_to_anchor=(0.78, 0.5), loc="center left")
-    plt.show()
+    # plt.show()
     fig.savefig(
         figures / f"guggenberger12_power_n={n}_k={k}_alphas={alphas}.pdf",
         bbox_inches="tight",

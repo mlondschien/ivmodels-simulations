@@ -47,6 +47,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
 
     for test_name in tests:
         key = test_name if test_name != "AR (GKM)" else "AR (Guggenberger)"
+        # key = test_name if test_name != "LM" else "LM (ours)"
         p_values[test_name] = file[key]["p_values"][()] / np.iinfo(data_type).max
 
     plt.rcParams["axes.titley"] = 0.8
@@ -69,7 +70,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
             (0.0, "blue"),
             (0.02, "blue"),
             (0.05, "green"),
-            (0.06, "yellow"),
+            (0.065, "yellow"),
             (0.075, "red"),
             (0.1, "red"),
             (1.0, "red"),
@@ -103,10 +104,10 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
 
         ax.set_box_aspect([1, 1, 0.45])  # Make 3d plots "wide"
 
-        ax.set_xlabel(r"$\lambda_1$", rotation=0)
+        ax.set_xlabel(r"$\lambda_1$", rotation=0, labelpad=10)
         ax.xaxis.set_rotate_label(False)
 
-        ax.set_ylabel(r"$\lambda_2$", rotation=0)
+        ax.set_ylabel(r"$\lambda_2$", rotation=0, labelpad=10)
         ax.yaxis.set_rotate_label(False)
 
         ax.set_zlabel("rejection frequency", rotation=90)
@@ -114,8 +115,9 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
 
         ax.set_facecolor("none")  # So background does not cover title of subplot above
 
-        if idx in [0, 1]:
+        if idx in [0, 1, 2, 3]:
             ax.set_zlim(0, 0.065)
+            # ax.set_zticks([0.0, 0.025, 0.05, 0.075])
 
     norm1 = matplotlib.colors.Normalize(vmin=0, vmax=0.075)
     color_map1 = matplotlib.colors.LinearSegmentedColormap.from_list(
@@ -145,7 +147,7 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         # eps does not support transparency
         / f"figure_kleibergen19_{cov_type}_k{k}_2x2.pdf",
         # custom as 'tight' cuts of left z-axis label
-        bbox_inches=matplotlib.transforms.Bbox([[0, 2.7], [11.25, 9.5]]),
+        bbox_inches=matplotlib.transforms.Bbox([[-0.25, 2.65], [11.25, 9.5]]),
     )
 
 
