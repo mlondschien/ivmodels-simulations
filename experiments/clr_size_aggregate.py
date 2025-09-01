@@ -19,38 +19,28 @@ matplotlib.rc("font", **font)
 
 @click.command()
 @click.option("--n", default=1000)
-@click.option("--k", default=100)
-@click.option("--n_vars", default=50)
-@click.option("--lambda_max", default=100)
-@click.option("--cov_type", default="identity")
-@click.option("--n_seeds", default=2500)
-def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
+@click.option("--k", default=5)
+@click.option("--m", default=2)
+@click.option("--n_vars", default=31)
+@click.option("--lambda_max", default=1000)
+@click.option("--n_seeds", default=50_000)
+def main(n, k, m, n_vars, lambda_max, n_seeds, cov_type):
     lambda_1s = np.geomspace(1, lambda_max, n_vars)
     lambda_2s = np.geomspace(1, lambda_max, n_vars)
 
     lambda_1s, lambda_2s = np.meshgrid(lambda_1s, lambda_2s)
 
-    name = f"kleibergen19_size_n={n}_k={k}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}_cov_type={cov_type}_tau=05.h5"
+    name = f"kleibergen19_size_n={n}_k={k}_m={m}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}.h5"
     file = h5py.File(input / name, "r")
     p_values = {}
 
     tests = [
-        # "AR",
-        # "AR (GKM)",
-        # "CLR",
-        # "LM",
         "CLR (new)",
         "CLR (old)",
-        # "LM (LIML)",
-        # "LR",
-        # "Wald (LIML)",
-        # "Wald (TSLS)",
     ]
 
     for test_name in tests:
-        key = test_name if test_name != "AR (GKM)" else "AR (Guggenberger)"
-        # key = test_name if test_name != "LM" else "LM (ours)"
-        p_values[test_name] = file[key]["p_values"][()] / np.iinfo(data_type).max
+        p_values[test_name] = file[test_name]["p_values"][()] / np.iinfo(data_type).max
 
     plt.rcParams["axes.titley"] = 0.8
     plt.rcParams["axes.titlepad"] = 0
@@ -84,7 +74,6 @@ def main(n, k, n_vars, lambda_max, n_seeds, cov_type):
         ax.set_title(test_name if test_name != "LM" else "LM (ours)", loc="left")
 
         data = (p_values[test_name] < 0.05).mean(axis=0).max(axis=0)
-        breakpoint()
         _ = ax.plot_surface(
             np.log10(lambda_1s),
             np.log10(lambda_2s),
