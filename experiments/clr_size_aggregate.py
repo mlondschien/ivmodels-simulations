@@ -62,7 +62,7 @@ def main(n, n_vars, lambda_max):
         file = h5py.File(input / name, "r")
         p_values = {}
 
-        tests = ["CLR (new)", "CLR (old)"]
+        tests = [ "CLR (old)", "CLR (new)"]
 
         for test_name in tests:
             p_values[test_name] = (
