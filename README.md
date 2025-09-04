@@ -111,3 +111,7 @@ Same as table 3 (figure 8), but additionally supplying `--n 50` and `--n 100`.
 ### Table 8
 
 See table 4.
+
+## Replacation files for "The exact distribution of the conditional likelihood-ratio test in instrumental variables regression"
+
+See `experiments/clr/README.md`.
