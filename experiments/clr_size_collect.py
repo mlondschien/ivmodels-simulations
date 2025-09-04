@@ -18,13 +18,13 @@ from ivmodels.tests import conditional_likelihood_ratio_test
 
 from ivmodels_simulations.constants import DATA_PATH
 
-output = DATA_PATH / "kleibergen19_clr_size"
+output = DATA_PATH / "clr"
 output.mkdir(parents=True, exist_ok=True)
 
 tests = {
     "CLR (new)": conditional_likelihood_ratio_test,
     "CLR (old)": partial(
-        conditional_likelihood_ratio_test, method="numerical_integration"
+        conditional_likelihood_ratio_test, critical_values="moreira2003conditional"
     ),
 }
 
@@ -76,7 +76,7 @@ def main(n, k, m, n_vars, n_cores, lambda_max, n_seeds):
 
     pool = multiprocessing.Pool(n_cores)
     run = partial(_run, n=n, k=k, m=m, n_seeds=n_seeds)
-    # result = [run(*x) for x in itertools.product(taus, lambda_1s, lambda_2s)]
+    # result = [run(*x) for x in itertools.product(lambda_1s, lambda_2s)]
     result = pool.starmap(run, itertools.product(lambda_1s, lambda_2s))
 
     p_values = {
