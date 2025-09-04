@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import click
 import cmap
 import h5py
@@ -5,15 +7,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from kleibergen19_size_collect import data_type
-from pathlib import Path
-from ivmodels_simulations.constants import DATA_PATH, FIGURES_PATH
+
+from ivmodels_simulations.constants import FIGURES_PATH
 
 output = FIGURES_PATH / "clr"
 input = Path("/cluster/work/math/lmalte/ivmodels/")
 output.mkdir(parents=True, exist_ok=True)
 
 font = {"size": 12}
-
 matplotlib.rc("font", **font)
 
 
@@ -46,18 +47,18 @@ def main(n, k, m, n_vars, lambda_max, n_seeds, lambda_1):
 
     # https://sronpersonalpages.nl/~pault/ SEQUENTIAL COLOUR SCHEMES Incandescent
     my_cmap = cmap.Colormap(
-    [
-        (0.0, "C6F7D6"),
-        (0.02, "A2F49B"),
-        (0.04, "BBE453"),
-        (0.06, "D5CE04"),
-        (0.08, "E7B503"),
-        (0.1, "F19903"),
-        (0.12, "F6790B"),
-        (0.14, "F94902"),
-        (0.16, "E40515"),
-        (1.0, "E40515"),
-    ],
+        [
+            (0.0, "C6F7D6"),
+            (0.02, "A2F49B"),
+            (0.04, "BBE453"),
+            (0.06, "D5CE04"),
+            (0.08, "E7B503"),
+            (0.1, "F19903"),
+            (0.12, "F6790B"),
+            (0.14, "F94902"),
+            (0.16, "E40515"),
+            (1.0, "E40515"),
+        ],
     ).to_mpl()
     my_cmap.N = 1024  # Increase resolution of colormap
 
@@ -67,11 +68,17 @@ def main(n, k, m, n_vars, lambda_max, n_seeds, lambda_1):
             file_name = f"clr_power_n={n}_k={k}_m={m}_n_seeds={n_seeds}_n_vars={n_vars}_lambda_max={lambda_max}_lambda_1{lambda_2}.h5"
             file = h5py.File(input / file_name, "r")
 
-            new = (file["CLR (new)"]["p_values"][()] / np.iinfo(data_type).max < 0.05).mean(axis=0)
-            old = (file["CLR (old)"]["p_values"][()] / np.iinfo(data_type).max < 0.05).mean(axis=0)
+            new = (
+                file["CLR (new)"]["p_values"][()] / np.iinfo(data_type).max < 0.05
+            ).mean(axis=0)
+            old = (
+                file["CLR (old)"]["p_values"][()] / np.iinfo(data_type).max < 0.05
+            ).mean(axis=0)
             data = new - old
 
-            axes[row, col].set_title(f"k={k}, m={m}\n$\lambda_1$={lambda_2}", loc="left", fontsize=12)
+            axes[row, col].set_title(
+                f"k={k}, m={m}\n$\\lambda_1$={lambda_2}", loc="left", fontsize=12
+            )
 
             _ = axes[row, col].plot_surface(
                 lambda_2_mesh,
@@ -96,7 +103,9 @@ def main(n, k, m, n_vars, lambda_max, n_seeds, lambda_1):
             axes[row, col].set_box_aspect([1, 1, 0.45])  # Make 3d plots "wide"
 
             axes[row, col].set_ylabel(r"$\beta_1$", rotation=0, labelpad=9, fontsize=13)
-            axes[row, col].set_xlabel(r"$\lambda_2$", rotation=0, labelpad=9, fontsize=13)
+            axes[row, col].set_xlabel(
+                r"$\lambda_2$", rotation=0, labelpad=9, fontsize=13
+            )
 
             axes[row, col].xaxis.set_rotate_label(False)
             axes[row, col].yaxis.set_rotate_label(False)
@@ -105,10 +114,11 @@ def main(n, k, m, n_vars, lambda_max, n_seeds, lambda_1):
                 axes[row, col].set_zlabel("power difference", rotation=90)
                 axes[row, col].zaxis.set_rotate_label(False)
 
-            axes[row, col].set_facecolor("none")  # So background does not cover title of subplot above
+            # So background does not cover title of subplot above
+            axes[row, col].set_facecolor("none")
 
-            axes[row, col].set_xticks([0.0, 1.0, 2.0]) # , 3.0])
-            axes[row, col].set_xticklabels(["1",  "10",  "100"]) #,  "1k"])
+            axes[row, col].set_xticks([0.0, 1.0, 2.0])
+            axes[row, col].set_xticklabels(["1", "10", "100"])
 
             if row == 0:
                 axes[row, col].set_zlim(0.0, 0.08)
@@ -130,16 +140,10 @@ def main(n, k, m, n_vars, lambda_max, n_seeds, lambda_1):
     cbar1.set_ticks([0.0, 0.05, 0.1, 0.15])
     cbar1.set_ticklabels([0.0, 0.05, 0.1, 0.15])
 
-
-    # fig.suptitle(
-    #     f"Empirical maximal rejection frequencies $m={m}$ and $k={k}$",
-    #     y=0.8,
-    # )
-    # plt.show()
     fig.savefig(
         output
         # eps does not support transparency
-        / f"figure_clr_power.pdf",
+        / "figure_clr_power.pdf",
         # custom as 'tight' cuts of left z-axis label
         # [left, bottom], [right, top]
         bbox_inches=matplotlib.transforms.Bbox([[0.8, 0.6], [10.65, 6.3]]),

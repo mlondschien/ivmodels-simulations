@@ -3,8 +3,8 @@ import multiprocessing
 import os
 from functools import partial
 
-from ivmodels.utils import oproj
 import scipy
+from ivmodels.utils import oproj
 
 # isort: off
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -23,7 +23,7 @@ output = DATA_PATH / "clr"
 output.mkdir(parents=True, exist_ok=True)
 
 tests = {
-    "CLR (new)": conditional_likelihood_ratio_test,
+    "CLR (new)": partial(conditional_likelihood_ratio_test, num_samples=10_000),
     "CLR (old)": partial(
         conditional_likelihood_ratio_test, critical_values="moreira2003conditional"
     ),
@@ -40,7 +40,7 @@ def _run(lambda_1, lambda_2, beta, n, k, m, n_seeds):
 
         Pi_X = np.empty((k, 0))
 
-        cov = np.eye(m+1)
+        cov = np.eye(m + 1)
         cov[0, 1] = -0.5
         cov[1, 0] = -0.5
 
@@ -49,14 +49,11 @@ def _run(lambda_1, lambda_2, beta, n, k, m, n_seeds):
         mat = scipy.linalg.sqrtm(cond_covariance)
         mat = mat @ Lambda @ mat
 
-        for idx in range(m):
+        for _ in range(m):
             Pi = rng.normal(0, 1, k)
             Pi -= Pi.mean(axis=0)
             Pi = oproj(Pi_X, Pi)
             Pi = Pi / np.linalg.norm(Pi)
-            # Pi = np.sqrt(mat[idx, idx]) * Pi
-            # for j in range(idx):
-            #     Pi += mat[idx, j] / np.sqrt(mat[j, j]) * Pi_X[:, j]
             Pi_X = np.hstack([Pi_X, Pi.reshape(-1, 1)])
 
         Pi_X = Pi_X @ np.linalg.cholesky(mat).T / np.sqrt(n)
@@ -70,10 +67,6 @@ def _run(lambda_1, lambda_2, beta, n, k, m, n_seeds):
         Z = rng.normal(0, 1, (n, k))
         X = Z @ Pi_X + noise[:, 1:]
         y = noise[:, 0]
-
-        y_orth = oproj(Z, y)
-        X_tilde = X - y.reshape(-1, 1) @ (y_orth.reshape(-1, 1).T @ X) / (y_orth.T @ y_orth)
-
 
         for test_name, test in tests.items():
             _, p_value = test(Z=Z, X=X, y=y, beta=beta, fit_intercept=False)
@@ -96,7 +89,6 @@ def main(n, k, m, n_vars, n_cores, lambda_max, n_seeds, lambda_1):
 
     lambda_1s = [lambda_1]
     lambda_2s = np.geomspace(1, lambda_max, n_vars)
-    # lambda_2s = np.geomspace(lambda_max, lambda_max, n_vars)
 
     beta = np.zeros(m)
     beta[0] = 1
@@ -107,8 +99,8 @@ def main(n, k, m, n_vars, n_cores, lambda_max, n_seeds, lambda_1):
 
     pool = multiprocessing.Pool(n_cores)
     run = partial(_run, n=n, k=k, m=m, n_seeds=n_seeds)
-    result = [run(*x) for x in itertools.product(lambda_1s, lambda_2s, betas)]
-    #result = pool.starmap(run, itertools.product(lambda_1s, lambda_2s, betas))
+    # result = [run(*x) for x in itertools.product(lambda_1s, lambda_2s, betas)]
+    result = pool.starmap(run, itertools.product(lambda_1s, lambda_2s, betas))
 
     p_values = {
         test_name: np.zeros((n_seeds, n_vars, len(betas)), dtype=data_type)
@@ -116,7 +108,6 @@ def main(n, k, m, n_vars, n_cores, lambda_max, n_seeds, lambda_1):
     }
 
     for idx, (
-        # (lambda_1_idx, _),
         (lambda_2_idx, _),
         (beta_idx, _),
     ) in enumerate(itertools.product(enumerate(lambda_2s), enumerate(betas))):

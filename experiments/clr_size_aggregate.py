@@ -20,7 +20,7 @@ matplotlib.rc("font", **font)
 @click.option("--n", default=1000)
 @click.option("--n_vars", default=21)
 @click.option("--lambda_max", default=100)
-def main(n,  n_vars, lambda_max):
+def main(n, n_vars, lambda_max):
 
     plt.rcParams["axes.titley"] = 0.7
     plt.rcParams["axes.titlepad"] = 0
@@ -65,13 +65,17 @@ def main(n,  n_vars, lambda_max):
         tests = ["CLR (new)", "CLR (old)"]
 
         for test_name in tests:
-            p_values[test_name] = file[test_name]["p_values"][()] / np.iinfo(data_type).max
+            p_values[test_name] = (
+                file[test_name]["p_values"][()] / np.iinfo(data_type).max
+            )
 
         for idx, test_name in enumerate(tests):
             data = file[test_name]["p_values"][()] / np.iinfo(data_type).max
             data = (data < 0.05).mean(axis=0)
-            axes[row, idx].set_title(f"{test_name}\nk={k}\nm={m}", loc="left", fontsize=12)
-        
+            axes[row, idx].set_title(
+                f"{test_name}\nk={k}\nm={m}", loc="left", fontsize=12
+            )
+
             _ = axes[row, idx].plot_surface(
                 np.log10(lambda_2s),
                 np.log10(lambda_1s),
@@ -92,9 +96,13 @@ def main(n,  n_vars, lambda_max):
             axes[row, idx].view_init(elev=20, azim=200)
             axes[row, idx].set_box_aspect([1, 1, 0.45])  # Make 3d plots "wide"
 
-            axes[row, idx].set_ylabel(r"$\lambda_1$", rotation=0, labelpad=9, fontsize=13)
-            axes[row, idx].set_xlabel(r"$\lambda_2$", rotation=0, labelpad=9, fontsize=13)
-        
+            axes[row, idx].set_ylabel(
+                r"$\lambda_1$", rotation=0, labelpad=9, fontsize=13
+            )
+            axes[row, idx].set_xlabel(
+                r"$\lambda_2$", rotation=0, labelpad=9, fontsize=13
+            )
+
             axes[row, idx].xaxis.set_rotate_label(False)
             axes[row, idx].yaxis.set_rotate_label(False)
 
@@ -107,9 +115,9 @@ def main(n,  n_vars, lambda_max):
 
             axes[row, idx].set_zlim(0.02, 0.06)
             axes[row, idx].set_xticks([0.0, 1.0, 2.0])
-            axes[row, idx].set_xticklabels(["1",  "10",  "100"])
+            axes[row, idx].set_xticklabels(["1", "10", "100"])
             axes[row, idx].set_yticks([0.0, 1.0, 2.0])
-            axes[row, idx].set_yticklabels(["1",  "10",  "100"])
+            axes[row, idx].set_yticklabels(["1", "10", "100"])
 
             axes[row, idx].set_zticks([0.02, 0.03, 0.04, 0.05, 0.06])
 
@@ -129,7 +137,7 @@ def main(n,  n_vars, lambda_max):
     plt.savefig(
         output
         # eps does not support transparency
-        / f"figure_clr_size.pdf",
+        / "figure_clr_size.pdf",
         # custom as 'tight' cuts of left z-axis label
         # [left, bottom], [right, top]
         bbox_inches=matplotlib.transforms.Bbox([[0.8, 0.6], [10.65, 6.3]]),
