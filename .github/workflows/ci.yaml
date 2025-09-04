@@ -21,7 +21,7 @@ jobs:
             create-args:
               python=3.10
             environment-name: base
-          init-shell: bash
+            init-shell: bash
 
         - name: Install Python 3.10
           uses: actions/setup-python@v4
