@@ -18,9 +18,10 @@ jobs:
         - name: Set up micromamba
           uses: mamba-org/setup-micromamba@v2
           with:
-            environment-file: environment.yml
-            init-shell: bash
-            cache-environment: true
+            create-args:
+              python=3.10
+            environment-name: base
+          init-shell: bash
 
         - name: Install Python 3.10
           uses: actions/setup-python@v4
