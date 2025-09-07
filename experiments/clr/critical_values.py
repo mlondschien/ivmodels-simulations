@@ -15,7 +15,7 @@ def clr_cdf(
     mx: int,
     k: int,
     lambdas: np.ndarray,
-    atol=1e-6,
+    tol=1e-6,
     num_iter=100,
     num_samples=200_000,
 ):
@@ -28,7 +28,7 @@ def clr_cdf(
         q_sum = np.sum(qx) + q0
 
         mu_min = _newton_minimal_root(
-            q_sum, qx, lambdas + q_sum, atol=atol, num_iter=num_iter
+            q_sum, qx, lambdas + q0, tol=tol, num_iter=num_iter
         )
         statistics[i] = q_sum - mu_min
 
@@ -48,6 +48,9 @@ for idx, (m, k, ax) in enumerate(
 
     roots_4 = clr_cdf(mx=m, k=k, lambdas=np.array([10] + [10] * (m - 1)))
     roots_5 = clr_cdf(mx=m, k=k, lambdas=np.array([10] + [100] * (m - 1)))
+
+    roots_6 = clr_cdf(mx=m, k=k, lambdas=np.array([20] + [20] * (m - 1)))
+    roots_7 = clr_cdf(mx=m, k=k, lambdas=np.array([20] + [200] * (m - 1)))
 
     y = np.empty(len(z))
 
@@ -99,9 +102,35 @@ for idx, (m, k, ax) in enumerate(
         roots_5_cdf,
         label="$\\Delta\\lambda_1 = 10, \\Delta\\lambda_2 = 100$" if idx == 0 else None,
         color="#BB5566",
-        linestyle=(3, (4, 2)),
+        linestyle=(2, (4, 2)),
         zorder=5,
     )
+
+    # roots_6_cdf = np.empty(len(z))
+    # for i, zi in enumerate(z):
+    #     roots_6_cdf[i] = np.mean(roots_6 > zi)
+
+    # # ax.plot(
+    # #     z,
+    # #     roots_6_cdf,
+    # #     label="$\\Delta\\lambda_1 = 20, \\Delta\\lambda_2 = 20$" if idx == 0 else None,
+    # #     color="#228833",
+    # #     linestyle="solid",
+    # #     zorder=3,
+    # # )
+
+    # # roots_7_cdf = np.empty(len(z))
+    # # for i, zi in enumerate(z):
+    # #     roots_7_cdf[i] = np.mean(roots_7 > zi)
+
+    # # ax.plot(
+    # #     z,
+    # #     roots_7_cdf,
+    # #     label="$\\Delta\\lambda_1 = 20, \\Delta\\lambda_2 = 200$" if idx == 0 else None,
+    # #     color="#228833",
+    # #     linestyle=(4, (4, 2)),
+    # #     zorder=5,
+    # # )
 
     ax.plot(
         z,
